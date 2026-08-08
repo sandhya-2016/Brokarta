@@ -276,11 +276,11 @@ export default function AdminSeoPage() {
               <div className="flex flex-col sm:flex-row items-center gap-4 py-2 border-b border-slate-100 pb-4">
                 <div className="w-28 h-16 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 relative shrink-0">
                   {ogImagePreview ? (
-                    <Image
+                    <img
                       src={ogImagePreview}
                       alt="OG Preview"
-                      fill
-                      className="object-cover"
+                      className="w-full h-full object-cover"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-slate-350">

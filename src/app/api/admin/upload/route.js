@@ -16,8 +16,8 @@ export async function POST(req) {
     const formData = await req.formData();
     const file = formData.get("file");
     
-    if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    if (!file || typeof file.arrayBuffer !== "function") {
+      return NextResponse.json({ error: "No valid file provided" }, { status: 400 });
     }
 
     const bytes = await file.arrayBuffer();

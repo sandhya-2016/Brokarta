@@ -340,7 +340,7 @@ export default function TestimonialBurstSection({ initialTestimonials = [] }) {
               }`}
               onAnimationEnd={() => handleBubbleAnimationEnd(b.id)}
               style={{
-                backgroundImage: `url(${b.avatarUrl})`,
+                backgroundImage: `url("${b.avatarUrl || '/images/logo1.jpeg'}")`,
                 backgroundSize: "cover",
                 left: b.isFloated ? b.tx : undefined,
                 bottom: b.isFloated ? b.ty : undefined,

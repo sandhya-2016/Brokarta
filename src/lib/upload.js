@@ -55,7 +55,7 @@ export function generateImageHash(buffer) {
  * @returns {Promise<string>} The public URL path (e.g. '/uploads/testimonials/a1b2c3d4...jpg').
  */
 export async function saveUploadedFile(file, subfolder) {
-  if (!file) return null;
+  if (!file || typeof file.arrayBuffer !== "function") return null;
 
   const validSubfolders = ["testimonials", "story-panels", "workflow-items", "seo"];
   if (!validSubfolders.includes(subfolder)) {

@@ -360,12 +360,11 @@ export default function AdminAboutUsPage() {
               <div className="space-y-4">
                 <div className="flex gap-4">
                   <div className="w-20 h-20 rounded-2xl overflow-hidden border border-slate-100 relative shrink-0">
-                    <Image
+                    <img
                       src={p.imageUrl || "/images/1aa.png"}
                       alt={p.title}
-                      fill
-                      className="object-cover"
-                      sizes="80px"
+                      className="w-full h-full object-cover"
+                      onError={(e) => { e.currentTarget.src = "/images/1aa.png"; }}
                     />
                   </div>
                   <div>
@@ -472,11 +471,11 @@ export default function AdminAboutUsPage() {
               <div className="flex flex-col sm:flex-row items-center gap-4 py-2 border-b border-slate-100 pb-4">
                 <div className="w-20 h-20 rounded-3xl overflow-hidden border-2 border-slate-200 bg-slate-50 relative shrink-0">
                   {imagePreview ? (
-                    <Image
+                    <img
                       src={imagePreview}
                       alt="Preview"
-                      fill
-                      className="object-cover"
+                      className="w-full h-full object-cover"
+                      onError={(e) => { e.currentTarget.src = "/images/1aa.png"; }}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-slate-350">

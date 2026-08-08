@@ -41,10 +41,13 @@ export async function PUT(req, { params }) {
     });
 
     let ogImageUrl = currentSeo?.ogImage || "";
-    if (imageFile && imageFile.size > 0) {
-      ogImageUrl = await saveUploadedFile(imageFile, "seo");
-      if (currentSeo?.ogImage) {
-        await deleteUploadedFile(currentSeo.ogImage);
+    if (imageFile && typeof imageFile === "object" && typeof imageFile.arrayBuffer === "function" && imageFile.size > 0) {
+      const uploaded = await saveUploadedFile(imageFile, "seo");
+      if (uploaded) {
+        ogImageUrl = uploaded;
+        if (currentSeo?.ogImage) {
+          await deleteUploadedFile(currentSeo.ogImage);
+        }
       }
     }
 

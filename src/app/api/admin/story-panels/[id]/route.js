@@ -87,9 +87,12 @@ export async function PUT(req, { params }) {
 
     const updateData = { ...parsed };
 
-    if (imageFile && imageFile.size > 0) {
-      updateData.imageUrl = await saveUploadedFile(imageFile, "story-panels");
-      await deleteUploadedFile(currentRecord.imageUrl);
+    if (imageFile && typeof imageFile === "object" && typeof imageFile.arrayBuffer === "function" && imageFile.size > 0) {
+      const uploaded = await saveUploadedFile(imageFile, "story-panels");
+      if (uploaded) {
+        updateData.imageUrl = uploaded;
+        await deleteUploadedFile(currentRecord.imageUrl);
+      }
     }
 
     // Transaction for atomic update & nested bullet replacement

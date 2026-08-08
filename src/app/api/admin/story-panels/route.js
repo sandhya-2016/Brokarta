@@ -70,8 +70,9 @@ export async function POST(req) {
     });
 
     let imageUrl = "/images/1aa.png"; // Fallback image
-    if (imageFile && imageFile.size > 0) {
-      imageUrl = await saveUploadedFile(imageFile, "story-panels");
+    if (imageFile && typeof imageFile === "object" && typeof imageFile.arrayBuffer === "function" && imageFile.size > 0) {
+      const uploaded = await saveUploadedFile(imageFile, "story-panels");
+      if (uploaded) imageUrl = uploaded;
     }
 
     let bullets = [];

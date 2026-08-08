@@ -88,8 +88,9 @@ export async function POST(req) {
     });
 
     let imageUrl = "/images/logo1.jpeg"; // Fallback image
-    if (imageFile && imageFile.size > 0) {
-      imageUrl = await saveUploadedFile(imageFile, "testimonials");
+    if (imageFile && typeof imageFile === "object" && typeof imageFile.arrayBuffer === "function" && imageFile.size > 0) {
+      const uploaded = await saveUploadedFile(imageFile, "testimonials");
+      if (uploaded) imageUrl = uploaded;
     }
 
     const newTestimonial = await prisma.communityTestimonial.create({
