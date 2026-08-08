@@ -1,0 +1,190 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Canvas Base Gradient -->
+    <radialGradient id="navyCanvas" cx="50%" cy="50%" r="75%">
+      <stop offset="0%" stop-color="#024b66"/>
+      <stop offset="45%" stop-color="#013144"/>
+      <stop offset="85%" stop-color="#001d29"/>
+      <stop offset="100%" stop-color="#001019"/>
+    </radialGradient>
+
+    <!-- Silk Wave Blur & Glow Filters -->
+    <filter id="silkBlur" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="38" result="blur"/>
+    </filter>
+
+    <filter id="glowFilter" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="60" result="blur"/>
+    </filter>
+
+    <!-- Soft Drop Shadows for Wave Depth -->
+    <filter id="foldShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="-15" dy="25" stdDeviation="40" flood-color="#000c14" flood-opacity="0.9"/>
+    </filter>
+
+    <!-- Wave Color Gradients -->
+    <linearGradient id="silkTealGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00cc9c" stop-opacity="0.5"/>
+      <stop offset="35%" stop-color="#02647e" stop-opacity="0.85"/>
+      <stop offset="75%" stop-color="#013144" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#001a1a" stop-opacity="0.9"/>
+    </linearGradient>
+
+    <linearGradient id="silkDarkFold" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#034861" stop-opacity="0.8"/>
+      <stop offset="50%" stop-color="#012b3c" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#00131d" stop-opacity="1"/>
+    </linearGradient>
+
+    <radialGradient id="softAmberGlow" cx="25%" cy="65%" r="55%">
+      <stop offset="0%" stop-color="#f6a200" stop-opacity="0.25"/>
+      <stop offset="60%" stop-color="#f6a200" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="silkHighlight" x1="0%" y1="30%" x2="100%" y2="70%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="45%" stop-color="#3de0b8" stop-opacity="0.45"/>
+      <stop offset="65%" stop-color="#ffffff" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <radialGradient id="vignette" cx="50%" cy="50%" r="65%">
+      <stop offset="50%" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.6"/>
+    </radialGradient>
+
+    <!-- Smooth Continuous SVG Animations -->
+    <style>
+      <![CDATA[
+        .animate-bg-pulse {
+          animation: bgPulse 10s ease-in-out infinite alternate;
+        }
+
+        .animate-silk-1 {
+          animation: silkMorph1 12s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite alternate;
+          transform-origin: 50% 50%;
+        }
+
+        .animate-silk-2 {
+          animation: silkMorph2 15s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite alternate;
+          transform-origin: 50% 50%;
+        }
+
+        .animate-silk-3 {
+          animation: silkMorph3 18s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite alternate;
+          transform-origin: 50% 50%;
+        }
+
+        .animate-light-glow {
+          animation: lightGlow 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes bgPulse {
+          0% { transform: scale(1); }
+          100% { transform: scale(1.08); }
+        }
+
+        @keyframes lightGlow {
+          0% { opacity: 0.4; transform: scale(0.95) translate(0, 0); }
+          50% { opacity: 0.85; transform: scale(1.1) translate(30px, -20px); }
+          100% { opacity: 0.5; transform: scale(1.02) translate(-20px, 15px); }
+        }
+
+        @keyframes silkMorph1 {
+          0% {
+            transform: translate(0px, 0px) rotate(0deg) scale(1);
+          }
+          50% {
+            transform: translate(-35px, 25px) rotate(2.5deg) scale(1.04);
+          }
+          100% {
+            transform: translate(30px, -20px) rotate(-2deg) scale(0.97);
+          }
+        }
+
+        @keyframes silkMorph2 {
+          0% {
+            transform: translate(0px, 0px) rotate(0deg) scale(1);
+          }
+          50% {
+            transform: translate(40px, -30px) rotate(-3deg) scale(1.05);
+          }
+          100% {
+            transform: translate(-25px, 20px) rotate(2deg) scale(0.96);
+          }
+        }
+
+        @keyframes silkMorph3 {
+          0% {
+            transform: translate(0px, 0px) rotate(0deg) scale(1);
+          }
+          50% {
+            transform: translate(-25px, -20px) rotate(1.8deg) scale(1.03);
+          }
+          100% {
+            transform: translate(20px, 25px) rotate(-1.5deg) scale(0.98);
+          }
+        }
+      ]]>
+    </style>
+  </defs>
+
+  <!-- Deep Canvas Base with Smooth Pulse Animation -->
+  <rect width="1920" height="1080" fill="#013144"/>
+  <rect class="animate-bg-pulse" width="1920" height="1080" fill="url(#navyCanvas)"/>
+
+  <!-- Ambient Animated Light Orbs -->
+  <circle class="animate-light-glow" cx="350" cy="650" r="550" fill="url(#softAmberGlow)"/>
+  <circle class="animate-light-glow" cx="1400" cy="300" r="650" fill="#00cc9c" opacity="0.1" filter="url(#glowFilter)"/>
+
+  <!-- Organic Smooth Animated Silky Wave Mesh -->
+  <g filter="url(#silkBlur)">
+
+    <!-- Wave Layer 1 (Background Deep Fold) -->
+    <path class="animate-silk-3" d="M -200, -100 C 400, 300 800, -50 1400, 450 C 1800, 800 2100, 200 2200, 900 L 2200, 1300 L -200, 1300 Z" fill="url(#silkDarkFold)" opacity="0.9">
+      <animate attributeName="d" 
+               values="
+                 M -200, -100 C 400, 300 800, -50 1400, 450 C 1800, 800 2100, 200 2200, 900 L 2200, 1300 L -200, 1300 Z;
+                 M -200, -60 C 450, 350 750, 20 1350, 490 C 1750, 750 2150, 250 2200, 930 L 2200, 1300 L -200, 1300 Z;
+                 M -200, -100 C 400, 300 800, -50 1400, 450 C 1800, 800 2100, 200 2200, 900 L 2200, 1300 L -200, 1300 Z"
+               dur="18s" repeatCount="indefinite"/>
+    </path>
+
+    <!-- Wave Layer 2 (Mid Main Teal Silk Wave with Shadow) -->
+    <g filter="url(#foldShadow)">
+      <path class="animate-silk-2" d="M -100, 200 C 350, 650 850, 100 1350, 600 C 1750, 1000 2000, 400 2150, 850 L 2150, 1300 L -100, 1300 Z" fill="url(#silkTealGrad)" opacity="0.95">
+        <animate attributeName="d" 
+                 values="
+                   M -100, 200 C 350, 650 850, 100 1350, 600 C 1750, 1000 2000, 400 2150, 850 L 2150, 1300 L -100, 1300 Z;
+                   M -100, 250 C 400, 600 800, 160 1400, 550 C 1700, 950 2050, 450 2150, 900 L 2150, 1300 L -100, 1300 Z;
+                   M -100, 200 C 350, 650 850, 100 1350, 600 C 1750, 1000 2000, 400 2150, 850 L 2150, 1300 L -100, 1300 Z"
+                 dur="15s" repeatCount="indefinite"/>
+      </path>
+    </g>
+
+    <!-- Wave Layer 3 (Foreground Soft Dark Wave Overlay) -->
+    <g filter="url(#foldShadow)">
+      <path class="animate-silk-1" d="M -200, 450 C 300, 150 750, 850 1250, 400 C 1650, 50 1950, 650 2200, 300 L 2200, 1300 L -200, 1300 Z" fill="url(#silkDarkFold)" opacity="0.85">
+        <animate attributeName="d" 
+                 values="
+                   M -200, 450 C 300, 150 750, 850 1250, 400 C 1650, 50 1950, 650 2200, 300 L 2200, 1300 L -200, 1300 Z;
+                   M -200, 400 C 350, 200 700, 800 1300, 450 C 1600, 100 1900, 600 2200, 350 L 2200, 1300 L -200, 1300 Z;
+                   M -200, 450 C 300, 150 750, 850 1250, 400 C 1650, 50 1950, 650 2200, 300 L 2200, 1300 L -200, 1300 Z"
+                 dur="12s" repeatCount="indefinite"/>
+      </path>
+    </g>
+
+    <!-- Wave Layer 4 (Front Accent Teal Peak) -->
+    <path class="animate-silk-1" d="M -100, 600 C 400, 300 900, 950 1450, 550 C 1800, 250 2050, 750 2200, 500 L 2200, 1300 L -100, 1300 Z" fill="url(#silkTealGrad)" opacity="0.75"/>
+
+  </g>
+
+  <!-- Animated Specular Light Sheen Beams -->
+  <g filter="url(#silkBlur)">
+    <path class="animate-silk-2" d="M -100, 220 C 350, 670 850, 120 1350, 620 C 1750, 1020 2000, 420 2150, 870" fill="none" stroke="url(#silkHighlight)" stroke-width="130" opacity="0.6"/>
+    <path class="animate-silk-1" d="M -200, 470 C 300, 170 750, 870 1250, 420" fill="none" stroke="url(#silkHighlight)" stroke-width="95" opacity="0.45"/>
+  </g>
+
+  <!-- Vignette Surround -->
+  <rect width="1920" height="1080" fill="url(#vignette)" pointer-events="none"/>
+</svg>

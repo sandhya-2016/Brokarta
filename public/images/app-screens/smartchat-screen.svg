@@ -1,0 +1,242 @@
+<svg width="430" height="700" viewBox="0 0 430 932" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#00cc9c" stop-opacity="0.08"/>
+      <stop offset="70%" stop-color="#00cc9c" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="phoneBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9a9a9e"/>
+      <stop offset="18%" stop-color="#e4e4e7"/>
+      <stop offset="35%" stop-color="#6f6f74"/>
+      <stop offset="55%" stop-color="#8f8f94"/>
+      <stop offset="75%" stop-color="#4a4a4e"/>
+      <stop offset="100%" stop-color="#232326"/>
+    </linearGradient>
+
+    <linearGradient id="buttonMetal" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#57575b"/>
+      <stop offset="50%" stop-color="#c9c9cd"/>
+      <stop offset="100%" stop-color="#3a3a3d"/>
+    </linearGradient>
+
+    <linearGradient id="glassSheen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="18%" stop-color="#ffffff" stop-opacity="0.08"/>
+      <stop offset="45%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <radialGradient id="cameraLens" cx="35%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#5a7ea8"/>
+      <stop offset="45%" stop-color="#12181f"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </radialGradient>
+
+    <linearGradient id="outboundBubble" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00cc9c"/>
+      <stop offset="100%" stop-color="#008f6d"/>
+    </linearGradient>
+
+    <linearGradient id="headerBlur" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.98"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.85"/>
+    </linearGradient>
+
+    <linearGradient id="inputBlur" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.98"/>
+    </linearGradient>
+
+    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="20" stdDeviation="25" flood-color="#013144" flood-opacity="0.15"/>
+    </filter>
+
+    <filter id="bubbleShadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#00cc9c" flood-opacity="0.2"/>
+    </filter>
+
+    <clipPath id="phoneClip">
+      <rect x="15" y="10" width="400" height="912" rx="46"/>
+    </clipPath>
+
+    <style>
+      <![CDATA[
+        .fadeUp {
+          animation: fadeInUp 0.7s ease forwards;
+          opacity: 0;
+        }
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(14px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .online-dot {
+          animation: onlinePulse 2s ease-in-out infinite;
+        }
+        @keyframes onlinePulse {
+          0%, 100% { opacity: 0.5; }
+          50% { opacity: 1; }
+        }
+        .type-dots circle {
+          animation: typeBounce 1.2s ease-in-out infinite;
+        }
+        .type-dots circle:nth-child(2) { animation-delay: 0.15s; }
+        .type-dots circle:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes typeBounce {
+          0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+          30% { transform: translateY(-3px); opacity: 1; }
+        }
+      ]]>
+    </style>
+  </defs>
+
+  <!-- Outer background -->
+
+  <!-- Phone frame -->
+  <rect x="10" y="5" width="410" height="922" rx="50" fill="url(#phoneBorder)" filter="url(#softShadow)"/>
+
+  <!-- Side buttons -->
+  <rect x="6" y="145" width="5" height="42" rx="2.5" fill="url(#buttonMetal)"/>
+  <rect x="6" y="225" width="5" height="58" rx="2.5" fill="url(#buttonMetal)"/>
+  <rect x="6" y="295" width="5" height="58" rx="2.5" fill="url(#buttonMetal)"/>
+  <rect x="419" y="230" width="5" height="95" rx="2.5" fill="url(#buttonMetal)"/>
+
+  <!-- Screen inner background (Light inverted mode) -->
+  <rect x="15" y="10" width="400" height="912" rx="46" fill="#ffffff"/>
+  <rect x="15" y="10" width="400" height="912" rx="46" fill="url(#bgGlow)"/>
+
+  <g clip-path="url(#phoneClip)">
+
+    <!-- Dynamic Island -->
+    <rect x="163" y="22" width="104" height="30" rx="15" fill="#000000"/>
+    <circle cx="245" cy="37" r="6" fill="url(#cameraLens)"/>
+    <circle cx="243" cy="35" r="1.4" fill="#3a4f66" opacity="0.8"/>
+
+    <!-- Status bar -->
+    <text x="45" y="55" fill="#013144" font-family="Arial, sans-serif" font-size="14" font-weight="700">9:41</text>
+    <g transform="translate(350,42)" fill="none" stroke="#013144" stroke-width="1.6" stroke-linecap="round">
+      <path d="M0 6 Q7 -2 14 6"/>
+      <path d="M3 9 Q7 5 11 9"/>
+      <circle cx="7" cy="12" r="1.2" fill="#013144" stroke="none"/>
+    </g>
+    <g transform="translate(375,42)">
+      <rect x="0" y="2" width="20" height="10" rx="2.5" fill="none" stroke="#013144" stroke-width="1.5"/>
+      <rect x="21" y="5.5" width="2" height="3" rx="1" fill="#013144"/>
+      <rect x="2" y="4" width="14" height="6" rx="1" fill="#013144"/>
+    </g>
+
+    <!-- Header -->
+    <rect x="15" y="70" width="400" height="70" fill="url(#headerBlur)"/>
+    <g transform="translate(45,90)">
+      <circle cx="18" cy="18" r="18" fill="#013144" stroke="#01314415" stroke-width="1"/>
+      <text x="18" y="23" text-anchor="middle" fill="#00cc9c" font-family="Arial, sans-serif" font-size="12" font-weight="700">JD</text>
+    </g>
+    <rect x="80" y="93" width="80" height="11" rx="4" fill="#01314415"/>
+    <circle class="online-dot" cx="83" cy="118" r="3" fill="#00cc9c"/>
+    <text x="91" y="121.5" fill="#00cc9c" font-family="Arial, sans-serif" font-size="10" font-weight="700">Online</text>
+
+    <rect x="312" y="94" width="88" height="26" rx="8" fill="#f6a2001a" stroke="#d97706" stroke-width="1"/>
+    <text x="356" y="111" text-anchor="middle" fill="#d97706" font-family="Arial, sans-serif" font-size="10" font-weight="900" letter-spacing="0.5">SAVE CONTACT</text>
+
+    <line x1="15" y1="140" x2="415" y2="140" stroke="#01314415" stroke-width="1"/>
+
+    <!-- Tagged property context bar -->
+    <rect x="15" y="140" width="400" height="36" fill="#00cc9c15"/>
+    <line x1="15" y1="176" x2="415" y2="176" stroke="#00cc9c33" stroke-width="1"/>
+    <g transform="translate(45,150)" fill="none" stroke="#00cc9c" stroke-width="1.6" stroke-linejoin="round">
+      <rect x="1" y="1" width="10" height="15" rx="1"/>
+      <g fill="#00cc9c" stroke="none">
+        <circle cx="4" cy="4.5" r="0.9"/>
+        <circle cx="8" cy="4.5" r="0.9"/>
+        <circle cx="4" cy="8" r="0.9"/>
+        <circle cx="8" cy="8" r="0.9"/>
+        <circle cx="4" cy="11.5" r="0.9"/>
+        <circle cx="8" cy="11.5" r="0.9"/>
+      </g>
+      <path d="M11 16 L15 16 L15 8 L11 8" stroke-linecap="round"/>
+    </g>
+    <text x="68" y="163" fill="#013144" font-family="Arial, sans-serif" font-size="11" font-weight="700">Horizon Tower · 22k sq.ft</text>
+    <text x="390" y="163" text-anchor="end" fill="#00cc9c" font-family="Arial, sans-serif" font-size="11" font-weight="900">AED 95/sqft</text>
+
+    <!-- Chat content -->
+    <g>
+      <!-- Enquiry started -->
+      <rect x="153" y="196" width="124" height="20" rx="10" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+      <text x="215" y="209.5" text-anchor="middle" fill="#64748b" font-family="Arial, sans-serif" font-size="9" font-weight="700" letter-spacing="1.5">ENQUIRY STARTED</text>
+
+      <!-- Inbound bubble -->
+      <path d="M63,240 H275 A18,18 0 0 1 293,258 V318 A18,18 0 0 1 275,336 H49 A4,4 0 0 1 45,332 V258 A18,18 0 0 1 63,240 Z" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+      <text x="61" y="266" fill="#013144" font-family="Arial, sans-serif" font-size="12.5" font-weight="500">
+        <tspan x="61" dy="0">Is the floor plan available for the 14th</tspan>
+        <tspan x="61" dy="18">floor? We are looking for immediate</tspan>
+        <tspan x="61" dy="18">possession.</tspan>
+      </text>
+
+      <!-- Outbound bubble -->
+      <path d="M158,348 H370 A18,18 0 0 1 388,366 V440 A4,4 0 0 1 384,444 H158 A18,18 0 0 1 140,426 V366 A18,18 0 0 1 158,348 Z" fill="url(#outboundBubble)" filter="url(#bubbleShadow)"/>
+      <text x="156" y="374" fill="#ffffff" font-family="Arial, sans-serif" font-size="12.5" font-weight="400">
+        <tspan x="156" dy="0">Hi! Yes, the 14th floor is ready. I'm</tspan>
+        <tspan x="156" dy="18">attaching the PDF and a quick voice</tspan>
+        <tspan x="156" dy="18">overview.</tspan>
+      </text>
+
+      <!-- Voice bubble -->
+      <path d="M250,456 H388 A16,16 0 0 1 404,472 V512 A4,4 0 0 1 400,516 H250 A16,16 0 0 1 234,500 V472 A16,16 0 0 1 250,456 Z" fill="url(#outboundBubble)" filter="url(#bubbleShadow)"/>
+      <path d="M250,479 L250,493 L262,486 Z" fill="#ffffff"/>
+      <g stroke="#ffffff" stroke-width="2" stroke-linecap="round">
+        <line x1="278" y1="480" x2="278" y2="492"/>
+        <line x1="284" y1="474" x2="284" y2="498"/>
+        <line x1="290" y1="484" x2="290" y2="488"/>
+        <line x1="296" y1="477" x2="296" y2="495"/>
+        <line x1="302" y1="483" x2="302" y2="489"/>
+        <line x1="308" y1="475" x2="308" y2="497"/>
+      </g>
+      <text x="340" y="490" fill="#ffffff" font-family="Arial, sans-serif" font-size="10.5" font-weight="700">0:12</text>
+    </g>
+
+    <!-- Suggestion chips -->
+    <g transform="translate(45,750)">
+      <rect x="0" y="0" width="118" height="30" rx="15" fill="#00cc9c15" stroke="#00cc9c" stroke-width="1"/>
+      <text x="59" y="19.5" text-anchor="middle" fill="#00cc9c" font-family="Arial, sans-serif" font-size="10.5" font-weight="600">Schedule Visit</text>
+
+      <rect x="126" y="0" width="118" height="30" rx="15" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+      <text x="185" y="19.5" text-anchor="middle" fill="#64748b" font-family="Arial, sans-serif" font-size="10.5" font-weight="600">Send KYC Docs</text>
+
+      <rect x="252" y="0" width="132" height="30" rx="15" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+      <text x="318" y="19.5" text-anchor="middle" fill="#64748b" font-family="Arial, sans-serif" font-size="10.5" font-weight="600">Price Negotiation</text>
+
+      <rect x="392" y="0" width="118" height="30" rx="15" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+      <text x="451" y="19.5" text-anchor="middle" fill="#64748b" font-family="Arial, sans-serif" font-size="10.5" font-weight="600">Share Location</text>
+    </g>
+
+    <!-- Input bar -->
+    <rect x="15" y="796" width="400" height="126" fill="url(#inputBlur)"/>
+    <line x1="15" y1="796" x2="415" y2="796" stroke="#01314415" stroke-width="1"/>
+
+    <rect x="45" y="816" width="340" height="44" rx="18" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+
+    <g transform="translate(58,829)" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round">
+      <line x1="9" y1="0" x2="9" y2="18"/>
+      <line x1="0" y1="9" x2="18" y2="9"/>
+    </g>
+
+    <text x="90" y="843" fill="#64748b" font-family="Arial, sans-serif" font-size="12" font-weight="500">Type your reply...</text>
+
+    <g transform="translate(340,829)" fill="none" stroke="#00cc9c" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+      <rect x="5" y="0" width="8" height="12" rx="4"/>
+      <path d="M1 10 C1 15 5 18 9 18 C13 18 17 15 17 10"/>
+      <line x1="9" y1="18" x2="9" y2="22"/>
+    </g>
+
+    <rect x="367" y="820" width="36" height="36" rx="12" fill="#00cc9c"/>
+    <path d="M377 838 L397 828 L389 848 L386 840 Z" fill="#ffffff"/>
+
+    <!-- Glass sheen overlay -->
+    <rect x="15" y="10" width="400" height="912" rx="46" fill="url(#glassSheen)"/>
+
+  </g>
+
+  <!-- Outer frame highlight -->
+  <rect x="15" y="10" width="400" height="912" rx="46" fill="none" stroke="#0131441a" stroke-width="1.2"/>
+  <rect x="10" y="5" width="410" height="922" rx="50" fill="none" stroke="#0131440f" stroke-width="0.8"/>
+</svg>

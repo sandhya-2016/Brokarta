@@ -1,0 +1,162 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+}
+
+model AdminUser {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         Role      @default(ADMIN)
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  adminEmail String
+  adminRole  String   @default("ADMIN")
+  action     String   // e.g. "CREATE", "UPDATE", "DELETE", "LOGIN", "BULK_DELETE", "BULK_UPDATE"
+  entity     String   // e.g. "CommunityTestimonial", "StoryPanel", "WorkflowItem", "Lead", "PageText", "AppUrl", "SEOPage", "AdminUser"
+  entityId   String?
+  details    String?  @db.Text
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([entity])
+}
+
+model CommunityTestimonial {
+  id          String   @id @default(uuid())
+  name        String
+  testimonial String
+  imageUrl    String
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive])
+}
+
+model StoryPanel {
+  id           String        @id @default(uuid())
+  title        String
+  description  String
+  imageUrl     String
+  accentColor  String
+  gradientFrom String
+  gradientTo   String
+  quote        String
+  quoteBadge   String
+  isActive     Boolean       @default(true)
+  sortOrder    Int           @default(0)
+  bullets      StoryBullet[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([isActive])
+}
+
+model StoryBullet {
+  id           String     @id @default(uuid())
+  storyPanelId String
+  storyPanel   StoryPanel @relation(fields: [storyPanelId], references: [id], onDelete: Cascade)
+  bulletText   String
+}
+
+model WorkflowItem {
+  id          String   @id @default(uuid())
+  title       String
+  heading1    String
+  heading2    String
+  description String
+  imageUrl    String
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive])
+}
+
+enum UserType {
+  BROKER
+  AGENCY
+  OTHERS
+}
+
+enum LookingFor {
+  JOIN_AS_BROKER
+  BOOK_A_DEMO
+  ENTERPRISE_USE
+  SUPPORT_QUERY
+}
+
+enum LeadStatus {
+  PENDING
+  CONTACTED
+  QUALIFIED
+  CLOSED
+  REJECTED
+}
+
+model Lead {
+  id          String     @id @default(uuid())
+  userType    UserType
+  lookingFor  LookingFor
+  fullName    String
+  email       String
+  phoneNumber String
+  companyName String?
+  companyRole String?
+  feedback    String?
+  status      LeadStatus @default(PENDING)
+  createdAt   DateTime   @default(now())
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model SEOPage {
+  id              String   @id @default(uuid())
+  pageKey         String   @unique
+  metaTitle       String
+  metaDescription String
+  keywords        String
+  ogImage         String?
+  canonicalUrl    String?
+  updatedAt       DateTime @updatedAt
+}
+
+model PageText {
+  id        String   @id @default(uuid())
+  pageKey   String   // e.g. "home", "about-us", "what-we-offer", "become-a-user", "connect-now"
+  textKey   String   // e.g. "hero.titleLine1", "hero.subheading"
+  value     String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([pageKey, textKey])
+}
+
+model AppUrl {
+  id        String   @id @default(uuid())
+  urlKey    String   @unique
+  value     String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+

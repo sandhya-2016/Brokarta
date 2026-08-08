@@ -1,0 +1,233 @@
+<svg width="430" height="700" viewBox="0 0 430 932" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#00cc9c" stop-opacity="0.08"/>
+      <stop offset="70%" stop-color="#00cc9c" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="phoneBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9a9a9e"/>
+      <stop offset="18%" stop-color="#e4e4e7"/>
+      <stop offset="35%" stop-color="#6f6f74"/>
+      <stop offset="55%" stop-color="#8f8f94"/>
+      <stop offset="75%" stop-color="#4a4a4e"/>
+      <stop offset="100%" stop-color="#232326"/>
+    </linearGradient>
+
+    <linearGradient id="buttonMetal" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#57575b"/>
+      <stop offset="50%" stop-color="#c9c9cd"/>
+      <stop offset="100%" stop-color="#3a3a3d"/>
+    </linearGradient>
+
+    <linearGradient id="glassSheen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="18%" stop-color="#ffffff" stop-opacity="0.08"/>
+      <stop offset="45%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <radialGradient id="cameraLens" cx="35%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#5a7ea8"/>
+      <stop offset="45%" stop-color="#12181f"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </radialGradient>
+
+    <linearGradient id="navBlur" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.98"/>
+    </linearGradient>
+
+    <linearGradient id="closedGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00cc9c" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#00cc9c" stop-opacity="0.02"/>
+    </linearGradient>
+
+    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="20" stdDeviation="25" flood-color="#013144" flood-opacity="0.15"/>
+    </filter>
+
+    <filter id="cardShadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#013144" flood-opacity="0.06"/>
+    </filter>
+
+    <clipPath id="phoneClip">
+      <rect x="15" y="10" width="400" height="912" rx="46"/>
+    </clipPath>
+
+    <style>
+      <![CDATA[
+        .nav-dot {
+          animation: navPulse 2s ease-in-out infinite;
+        }
+        @keyframes navPulse {
+          0%, 100% { opacity: 0.6; }
+          50% { opacity: 1; }
+        }
+      ]]>
+    </style>
+  </defs>
+
+  <!-- Phone frame -->
+  <rect x="10" y="5" width="410" height="922" rx="50" fill="url(#phoneBorder)" filter="url(#softShadow)"/>
+
+  <!-- Side buttons -->
+  <rect x="6" y="145" width="5" height="42" rx="2.5" fill="url(#buttonMetal)"/>
+  <rect x="6" y="225" width="5" height="58" rx="2.5" fill="url(#buttonMetal)"/>
+  <rect x="6" y="295" width="5" height="58" rx="2.5" fill="url(#buttonMetal)"/>
+  <rect x="419" y="230" width="5" height="95" rx="2.5" fill="url(#buttonMetal)"/>
+
+  <!-- Screen inner background (Light inverted mode - exactly matching verified-screen.svg) -->
+  <rect x="15" y="10" width="400" height="912" rx="46" fill="#ffffff"/>
+  <rect x="15" y="10" width="400" height="912" rx="46" fill="url(#bgGlow)"/>
+
+  <g clip-path="url(#phoneClip)">
+
+    <!-- Dynamic Island -->
+    <rect x="163" y="22" width="104" height="30" rx="15" fill="#000000"/>
+    <circle cx="245" cy="37" r="6" fill="url(#cameraLens)"/>
+    <circle cx="243" cy="35" r="1.4" fill="#3a4f66" opacity="0.8"/>
+
+    <!-- Status bar -->
+    <text x="45" y="58" fill="#013144" font-family="Arial, sans-serif" font-size="14" font-weight="700">9:41</text>
+    <g transform="translate(350,45)" fill="none" stroke="#013144" stroke-width="1.6" stroke-linecap="round">
+      <path d="M0 6 Q7 -2 14 6"/>
+      <path d="M3 9 Q7 5 11 9"/>
+      <circle cx="7" cy="12" r="1.2" fill="#013144" stroke="none"/>
+    </g>
+    <g transform="translate(375,45)">
+      <rect x="0" y="2" width="20" height="10" rx="2.5" fill="none" stroke="#013144" stroke-width="1.5"/>
+      <rect x="21" y="5.5" width="2" height="3" rx="1" fill="#013144"/>
+      <rect x="2" y="4" width="14" height="6" rx="1" fill="#013144"/>
+    </g>
+
+    <!-- Header (Matching verified-screen.svg header structure) -->
+    <path d="M50 80 L39 90 L50 100" fill="none" stroke="#013144" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="215" y="96" text-anchor="middle" fill="#013144" font-family="Arial, sans-serif" font-size="15" font-weight="700" letter-spacing="-0.3">Deal Pipeline</text>
+    <g transform="translate(370,80)" fill="#013144" opacity="0.7">
+      <circle cx="10" cy="10" r="2"/>
+      <circle cx="10" cy="18" r="2"/>
+      <circle cx="10" cy="26" r="2"/>
+    </g>
+
+    <!-- Filter Tabs Row -->
+    <g transform="translate(35,120)">
+      <rect x="0" y="0" width="112" height="34" rx="17" fill="#00cc9c" filter="url(#cardShadow)"/>
+      <text x="56" y="21" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="11" font-weight="700">All Deals (14)</text>
+
+      <rect x="122" y="0" width="106" height="34" rx="17" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+      <text x="175" y="21" text-anchor="middle" fill="#64748b" font-family="Arial, sans-serif" font-size="11" font-weight="600">Negotiations</text>
+
+      <rect x="238" y="0" width="122" height="34" rx="17" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+      <text x="299" y="21" text-anchor="middle" fill="#64748b" font-family="Arial, sans-serif" font-size="11" font-weight="600">Closed (8)</text>
+    </g>
+
+    <!-- Stage 1: Active Negotiations Card -->
+    <g transform="translate(35,174)">
+      <rect x="0" y="0" width="360" height="175" rx="24" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1" filter="url(#cardShadow)"/>
+      
+      <!-- Stage Badge -->
+      <rect x="18" y="18" width="116" height="24" rx="12" fill="#3b82f61a" stroke="#3b82f64d" stroke-width="1"/>
+      <circle cx="30" cy="30" r="4" fill="#2563eb"/>
+      <text x="40" y="34" fill="#2563eb" font-family="Arial, sans-serif" font-size="10.5" font-weight="800">NEGOTIATIONS</text>
+      <text x="342" y="34" text-anchor="end" fill="#64748b" font-family="Arial, sans-serif" font-size="11" font-weight="600">4 Active Deals</text>
+
+      <!-- Deal Title & Value -->
+      <text x="18" y="68" fill="#013144" font-family="Arial, sans-serif" font-size="14" font-weight="700">Platina Commercial Tower</text>
+      <text x="342" y="68" text-anchor="end" fill="#00cc9c" font-family="Arial, sans-serif" font-size="14" font-weight="800">AED 4,500,000</text>
+      <text x="18" y="88" fill="#64748b" font-family="Arial, sans-serif" font-size="11">Client: R. Verma · Co-broker: A. Kapoor</text>
+
+      <!-- Progress bar & terms indicator -->
+      <rect x="18" y="104" width="324" height="6" rx="3" fill="#e2e8f0"/>
+      <rect x="18" y="104" width="226" height="6" rx="3" fill="#3b82f6"/>
+      <text x="18" y="126" fill="#64748b" font-family="Arial, sans-serif" font-size="10" font-weight="600">70% Terms Agreed</text>
+
+      <!-- Broker Avatars -->
+      <g transform="translate(18,138)">
+        <circle cx="12" cy="12" r="12" fill="#013144" stroke="#ffffff" stroke-width="1.5"/>
+        <text x="12" y="16" text-anchor="middle" fill="#00cc9c" font-family="Arial, sans-serif" font-size="8.5" font-weight="800">RS</text>
+        <circle cx="30" cy="12" r="12" fill="#013144" stroke="#ffffff" stroke-width="1.5"/>
+        <text x="30" y="16" text-anchor="middle" fill="#f6a200" font-family="Arial, sans-serif" font-size="8.5" font-weight="800">AK</text>
+        <text x="50" y="16" fill="#64748b" font-family="Arial, sans-serif" font-size="10.5">Shared Pipeline Workspace</text>
+      </g>
+    </g>
+
+    <!-- Stage 2: Token & Booking Card -->
+    <g transform="translate(35,367)">
+      <rect x="0" y="0" width="360" height="165" rx="24" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1" filter="url(#cardShadow)"/>
+
+      <!-- Stage Badge -->
+      <rect x="18" y="18" width="128" height="24" rx="12" fill="#a855f71a" stroke="#a855f74d" stroke-width="1"/>
+      <circle cx="30" cy="30" r="4" fill="#7e22ce"/>
+      <text x="40" y="34" fill="#7e22ce" font-family="Arial, sans-serif" font-size="10.5" font-weight="800">TOKEN &amp; BOOKING</text>
+      <text x="342" y="34" text-anchor="end" fill="#64748b" font-family="Arial, sans-serif" font-size="11" font-weight="600">2 Pending</text>
+
+      <!-- Deal Details -->
+      <text x="18" y="68" fill="#013144" font-family="Arial, sans-serif" font-size="14" font-weight="700">Horizon Luxury Villa 4B</text>
+      <text x="342" y="68" text-anchor="end" fill="#00cc9c" font-family="Arial, sans-serif" font-size="14" font-weight="800">AED 8,200,000</text>
+      <text x="18" y="88" fill="#64748b" font-family="Arial, sans-serif" font-size="11">Buyer: S. Malhotra · Token Deposit Verified</text>
+
+      <!-- Status badge -->
+      <rect x="18" y="106" width="138" height="24" rx="6" fill="#00cc9c1a"/>
+      <path d="M28 118 L32 121 L38 114" fill="none" stroke="#00cc9c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="44" y="122" fill="#059669" font-family="Arial, sans-serif" font-size="10" font-weight="800">TOKEN AED 250,000</text>
+    </g>
+
+    <!-- Stage 3: Closed Deals Card -->
+    <g transform="translate(35,550)">
+      <rect x="0" y="0" width="360" height="155" rx="24" fill="url(#closedGlow)" stroke="#00cc9c4d" stroke-width="1.2" filter="url(#cardShadow)"/>
+
+      <!-- Stage Badge -->
+      <rect x="18" y="18" width="112" height="24" rx="12" fill="#00cc9c26" stroke="#00cc9c66" stroke-width="1"/>
+      <circle cx="30" cy="30" r="4" fill="#00cc9c"/>
+      <text x="40" y="34" fill="#059669" font-family="Arial, sans-serif" font-size="10.5" font-weight="800">DEAL CLOSED</text>
+      <text x="342" y="34" text-anchor="end" fill="#059669" font-family="Arial, sans-serif" font-size="11" font-weight="700">Commission Logged</text>
+
+      <!-- Deal Info -->
+      <text x="18" y="68" fill="#013144" font-family="Arial, sans-serif" font-size="14" font-weight="700">Nexus SEZ Executive Suite</text>
+      <text x="342" y="68" text-anchor="end" fill="#059669" font-family="Arial, sans-serif" font-size="14" font-weight="800">AED 2,400,000</text>
+      <text x="18" y="88" fill="#64748b" font-family="Arial, sans-serif" font-size="11">Closed 2 days ago · Co-broke 50/50 split</text>
+
+      <g transform="translate(18,106)">
+        <rect x="0" y="0" width="150" height="22" rx="6" fill="#00cc9c20"/>
+        <text x="75" y="15" text-anchor="middle" fill="#059669" font-family="Arial, sans-serif" font-size="10" font-weight="700">COMMISSION AUDITED</text>
+      </g>
+    </g>
+
+    <!-- Bottom Nav (EXACT 4-icon structure matching verified-screen.svg) -->
+    <rect x="15" y="832" width="400" height="90" fill="url(#navBlur)"/>
+    <line x1="15" y1="832" x2="415" y2="832" stroke="#01314415" stroke-width="1"/>
+
+    <!-- Home Tab -->
+    <g transform="translate(94,858)" opacity="0.4" fill="none" stroke="#013144" stroke-width="2">
+      <path d="M0 12 L12 2 L24 12 L24 24 L15 24 L15 15 L9 15 L9 24 L0 24 Z" stroke-linejoin="round"/>
+    </g>
+
+    <!-- Search Tab -->
+    <g transform="translate(174,858)" opacity="0.4" fill="none" stroke="#013144" stroke-width="2">
+      <circle cx="10" cy="10" r="8"/>
+      <line x1="16" y1="16" x2="23" y2="23" stroke-linecap="round"/>
+    </g>
+
+    <!-- Pipeline / Profile Active Tab -->
+    <g transform="translate(254,858)" fill="none" stroke="#00cc9c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="8" r="5"/>
+      <path d="M2 26 C2 18 6 15 12 15 C18 15 22 18 22 26"/>
+      <circle class="nav-dot" cx="12" cy="33" r="2" fill="#00cc9c" stroke="none"/>
+    </g>
+
+    <!-- Settings / Shield Tab -->
+    <g transform="translate(334,858)" opacity="0.4" fill="none" stroke="#013144" stroke-width="2">
+      <circle cx="12" cy="12" r="3.4"/>
+      <path d="M12 1 L12 5 M12 19 L12 23 M1 12 L5 12 M19 12 L23 12 M4.5 4.5 L7.2 7.2 M16.8 16.8 L19.5 19.5 M19.5 4.5 L16.8 7.2 M7.2 16.8 L4.5 19.5" stroke-linecap="round"/>
+    </g>
+
+    <!-- Glass sheen overlay -->
+    <rect x="15" y="10" width="400" height="912" rx="46" fill="url(#glassSheen)"/>
+
+  </g>
+
+  <!-- Outer frame highlight -->
+  <rect x="15" y="10" width="400" height="912" rx="46" fill="none" stroke="#0131441a" stroke-width="1.2"/>
+  <rect x="10" y="5" width="410" height="922" rx="50" fill="none" stroke="#0131440f" stroke-width="0.8"/>
+</svg>

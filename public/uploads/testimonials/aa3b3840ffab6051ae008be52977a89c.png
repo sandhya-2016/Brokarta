@@ -1,0 +1,1530 @@
+import { extractDefs, finalize, initializeContext, process, } from "./to-json-schema.js";
+import { getEnumValues } from "./util.js";
+const formatMap = {
+    guid: "uuid",
+    url: "uri",
+    datetime: "date-time",
+    json_string: "json-string",
+    regex: "", // do not set
+};
+// ==================== SIMPLE TYPE PROCESSORS ====================
+export const stringProcessor = (schema, ctx, _json, _params) => {
+    const json = _json;
+    json.type = "string";
+    const { minimum, maximum, format, patterns, contentEncoding } = schema._zod
+        .bag;
+    if (typeof minimum === "number")
+        json.minLength = minimum;
+    if (typeof maximum === "number")
+        json.maxLength = maximum;
+    // custom pattern overrides format
+    if (format) {
+        json.format = formatMap[format] ?? format;
+        if (json.format === "")
+            delete json.format; // empty format is not valid
+        // JSON Schema format: "time" requires a full time with offset or Z
+        // z.iso.time() does not include timezone information, so format: "time" should never be used
+        if (format === "time") {
+            delete json.format;
+        }
+    }
+    if (contentEncoding)
+        json.contentEncoding = contentEncoding;
+    if (patterns && patterns.size > 0) {
+        const regexes = [...patterns];
+        if (regexes.length === 1)
+            json.pattern = regexes[0].source;
+        else if (regexes.length > 1) {
+            json.allOf = [
+                ...regexes.map((regex) => ({
+                    ...(ctx.target === "draft-07" || ctx.target === "draft-04" || ctx.target === "openapi-3.0"
+                        ? { type: "string" }
+                        : {}),
+                    pattern: regex.source,
+                })),
+            ];
+        }
+    }
+};
+export const numberProcessor = (schema, ctx, _json, _params) => {
+    const json = _json;
+    const { minimum, maximum, format, multipleOf, exclusiveMaximum, exclusiveMinimum } = schema._zod.bag;
+    if (typeof format === "string" && format.includes("int"))
+        json.type = "integer";
+    else
+        json.type = "number";
+    // when both minimum and exclusiveMinimum exist, pick the more restrictive one
+    const exMin = typeof exclusiveMinimum === "number" && exclusiveMinimum >= (minimum ?? Number.NEGATIVE_INFINITY);
+    const exMax = typeof exclusiveMaximum === "number" && exclusiveMaximum <= (maximum ?? Number.POSITIVE_INFINITY);
+    const legacy = ctx.target === "draft-04" || ctx.target === "openapi-3.0";
+    if (exMin) {
+        if (legacy) {
+            json.minimum = exclusiveMinimum;
+            json.exclusiveMinimum = true;
+        }
+        else {
+            json.exclusiveMinimum = exclusiveMinimum;
+        }
+    }
+    else if (typeof minimum === "number") {
+        json.minimum = minimum;
+    }
+    if (exMax) {
+        if (legacy) {
+            json.maximum = exclusiveMaximum;
+            json.exclusiveMaximum = true;
+        }
+        else {
+            json.exclusiveMaximum = exclusiveMaximum;
+        }
+    }
+    else if (typeof maximum === "number") {
+        json.maximum = maximum;
+    }
+    if (typeof multipleOf === "number")
+        json.multipleOf = multipleOf;
+};
+export const booleanProcessor = (_schema, _ctx, json, _params) => {
+    json.type = "boolean";
+};
+export const bigintProcessor = (_schema, ctx, _json, _params) => {
+    if (ctx.unrepresentable === "throw") {
+        throw new Error("BigInt cannot be represented in JSON Schema");
+    }
+};
+export const symbolProcessor = (_schema, ctx, _json, _params) => {
+    if (ctx.unrepresentable === "throw") {
+        throw new Error("Symbols cannot be represented in JSON Schema");
+    }
+};
+export const nullProcessor = (_schema, ctx, json, _params) => {
+    if (ctx.target === "openapi-3.0") {
+        json.type = "string";
+        json.nullable = true;
+        json.enum = [null];
+    }
+    else {
+        json.type = "null";
+    }
+};
+export const undefinedProcessor = (_schema, ctx, _json, _params) => {
+    if (ctx.unrepresentable === "throw") {
+        throw new Error("Undefined cannot be represented in JSON Schema");
+    }
+};
+export const voidProcessor = (_schema, ctx, _json, _params) => {
+    if (ctx.unrepresentable === "throw") {
+        throw new Error("Void cannot be represented in JSON Schema");
+    }
+};
+export const neverProcessor = (_schema, _ctx, json, _params) => {
+    json.not = {};
+};
+export const anyProcessor = (_schema, _ctx, _json, _params) => {
+    // empty schema accepts anything
+};
+export const unknownProcessor = (_schema, _ctx, _json, _params) => {
+    // empty schema accepts anything
+};
+export const dateProcessor = (_schema, ctx, _json, _params) => {
+    if (ctx.unrepresentable === "throw") {
+        throw new Error("Date cannot be represented in JSON Schema");
+    }
+};
+export const enumProcessor = (schema, _ctx, json, _params) => {
+    const def = schema._zod.def;
+    const values = getEnumValues(def.entries);
+    // Number enums can have both string and number values
+    if (values.every((v) => typeof v === "number"))
+        json.type = "number";
+    if (values.every((v) => typeof v === "string"))
+        json.type = "string";
+    json.enum = values;
+};
+export const literalProcessor = (schema, ctx, json, _params) => {
+    const def = schema._zod.def;
+    const vals = [];
+    for (const val of def.values) {
+        if (val === undefined) {
+            if (ctx.unrepresentable === "throw") {
+                throw new Error("Literal `undefined` cannot be represented in JSON Schema");
+            }
+            else {
+                // do not add to vals
+            }
+        }
+        else if (typeof val === "bigint") {
+            if (ctx.unrepresentable === "throw") {
+                throw new Error("BigInt literals cannot be represented in JSON Schema");
+            }
+            else {
+                vals.push(Number(val));
+            }
+        }
+        else {
+            vals.push(val);
+        }
+    }
+    if (vals.length === 0) {
+        // do nothing (an undefined literal was stripped)
+    }
+    else if (vals.length === 1) {
+        const val = vals[0];
+        json.type = val === null ? "null" : typeof val;
+        if (ctx.target === "draft-04" || ctx.target === "openapi-3.0") {
+            json.enum = [val];
+        }
+        else {
+            json.const = val;
+        }
+    }
+    else {
+        if (vals.every((v) => typeof v === "number"))
+            json.type = "number";
+        if (vals.every((v) => typeof v === "string"))
+            json.type = "string";
+        if (vals.every((v) => typeof v === "boolean"))
+            json.type = "boolean";
+        if (vals.every((v) => v === null))
+            json.type = "null";
+        json.enum = vals;
+    }
+};
+export const nanProcessor = (_schema, ctx, _json, _params) => {
+    if (ctx.unrepresentable === "throw") {
+        throw new Error("NaN cannot be represented in JSON Schema");
+    }
+};
+export const templateLiteralProcessor = (schema, _ctx, json, _params) => {
+    const _json = json;
+    const pattern = schema._zod.pattern;
+    if (!pattern)
+        throw new Error("Pattern not found in template literal");
+    _json.type = "string";
+    _json.pattern = pattern.source;
+};
+export const fileProcessor = (schema, _ctx, json, _params) => {
+    const _json = json;
+    const file = {
+        type: "string",
+        format: "binary",
+        contentEncoding: "binary",
+    };
+    const { minimum, maximum, mime } = schema._zod.bag;
+    if (minimum !== undefined)
+        file.minLength = minimum;
+    if (maximum !== undefined)
+        file.maxLength = maximum;
+    if (mime) {
+        if (mime.length === 1) {
+            file.contentMediaType = mime[0];
+            Object.assign(_json, file);
+        }
+        else {
+            Object.assign(_json, file); // shared props at root
+            _json.anyOf = mime.map((m) => ({ contentMediaType: m })); // only contentMediaType differs
+        }
+    }
+    else {
+        Object.assign(_json, file);
+    }
+};
+export const successProcessor = (_schema, _ctx, json, _params) => {
+    json.type = "boolean";
+};
+export const customProcessor = (_schema, ctx, _json, _params) => {
+    if (ctx.unrepresentable === "throw") {
+        throw new Error("Custom types cannot be represented in JSON Schema");
+    }
+};
+export const functionProcessor = (_schema, ctx, _json, _params) => {
+    if (ctx.unrepresentable === "throw") {
+        throw new Error("Function types cannot be represented in JSON Schema");
+    }
+};
+export const transformProcessor = (_schema, ctx, _json, _params) => {
+    if (ctx.unrepresentable === "throw") {
+        throw new Error("Transforms cannot be represented in JSON Schema");
+    }
+};
+export const mapProcessor = (_schema, ctx, _json, _params) => {
+    if (ctx.unrepresentable === "throw") {
+        throw new Error("Map cannot be represented in JSON Schema");
+    }
+};
+export const setProcessor = (_schema, ctx, _json, _params) => {
+    if (ctx.unrepresentable === "throw") {
+        throw new Error("Set cannot be represented in JSON Schema");
+    }
+};
+// ==================== COMPOSITE TYPE PROCESSORS ====================
+export const arrayProcessor = (schema, ctx, _json, params) => {
+    const json = _json;
+    const def = schema._zod.def;
+    const { minimum, maximum } = schema._zod.bag;
+    if (typeof minimum === "number")
+        json.minItems = minimum;
+    if (typeof maximum === "number")
+        json.maxItems = maximum;
+    json.type = "array";
+    json.items = process(def.element, ctx, {
+        ...params,
+        path: [...params.path, "items"],
+    });
+};
+export const objectProcessor = (schema, ctx, _json, params) => {
+    const json = _json;
+    const def = schema._zod.def;
+    json.type = "object";
+    json.properties = {};
+    const shape = def.shape;
+    for (const key in shape) {
+        json.properties[key] = process(shape[key], ctx, {
+            ...params,
+            path: [...params.path, "properties", key],
+        });
+    }
+    // required keys
+    const allKeys = new Set(Object.keys(shape));
+    const requiredKeys = new Set([...allKeys].filter((key) => {
+        const v = def.shape[key]._zod;
+        if (ctx.io === "input") {
+            return v.optin === undefined;
+        }
+        else {
+            return v.optout === undefined;
+        }
+    }));
+    if (requiredKeys.size > 0) {
+        json.required = Array.from(requiredKeys);
+    }
+    // catchall
+    if (def.catchall?._zod.def.type === "never") {
+        // strict
+        json.additionalProperties = false;
+    }
+    else if (!def.catchall) {
+        // regular
+        if (ctx.io === "output")
+            json.additionalProperties = false;
+    }
+    else if (def.catchall) {
+        json.additionalProperties = process(def.catchall, ctx, {
+            ...params,
+            path: [...params.path, "additionalProperties"],
+        });
+    }
+};
+export const unionProcessor = (schema, ctx, json, params) => {
+    const def = schema._zod.def;
+    // Exclusive unions (inclusive === false) use oneOf (exactly one match) instead of anyOf (one or more matches)
+    // This includes both z.xor() and discriminated unions
+    const isExclusive = def.inclusive === false;
+    const options = def.options.map((x, i) => process(x, ctx, {
+        ...params,
+        path: [...params.path, isExclusive ? "oneOf" : "anyOf", i],
+    }));
+    if (isExclusive) {
+        json.oneOf = options;
+    }
+    else {
+        json.anyOf = options;
+    }
+};
+export const intersectionProcessor = (schema, ctx, json, params) => {
+    const def = schema._zod.def;
+    const a = process(def.left, ctx, {
+        ...params,
+        path: [...params.path, "allOf", 0],
+    });
+    const b = process(def.right, ctx, {
+        ...params,
+        path: [...params.path, "allOf", 1],
+    });
+    const isSimpleIntersection = (val) => "allOf" in val && Object.keys(val).length === 1;
+    const allOf = [
+        ...(isSimpleIntersection(a) ? a.allOf : [a]),
+        ...(isSimpleIntersection(b) ? b.allOf : [b]),
+    ];
+    json.allOf = allOf;
+};
+export const tupleProcessor = (schema, ctx, _json, params) => {
+    const json = _json;
+    const def = schema._zod.def;
+    json.type = "array";
+    const prefixPath = ctx.target === "draft-2020-12" ? "prefixItems" : "items";
+    const restPath = ctx.target === "draft-2020-12" ? "items" : ctx.target === "openapi-3.0" ? "items" : "additionalItems";
+    const prefixItems = def.items.map((x, i) => process(x, ctx, {
+        ...params,
+        path: [...params.path, prefixPath, i],
+    }));
+    const rest = def.rest
+        ? process(def.rest, ctx, {
+            ...params,
+            path: [...params.path, restPath, ...(ctx.target === "openapi-3.0" ? [def.items.length] : [])],
+        })
+        : null;
+    if (ctx.target === "draft-2020-12") {
+        json.prefixItems = prefixItems;
+        if (rest) {
+            json.items = rest;
+        }
+    }
+    else if (ctx.target === "openapi-3.0") {
+        json.items = {
+            anyOf: prefixItems,
+        };
+        if (rest) {
+            json.items.anyOf.push(rest);
+        }
+        json.minItems = prefixItems.length;
+        if (!rest) {
+            json.maxItems = prefixItems.length;
+        }
+    }
+    else {
+        json.items = prefixItems;
+        if (rest) {
+            json.additionalItems = rest;
+        }
+    }
+    // length
+    const { minimum, maximum } = schema._zod.bag;
+    if (typeof minimum === "number")
+        json.minItems = minimum;
+    if (typeof maximum === "number")
+        json.maxItems = maximum;
+};
+export const recordProcessor = (schema, ctx, _json, params) => {
+    const json = _json;
+    const def = schema._zod.def;
+    json.type = "object";
+    // For looseRecord with regex patterns, use patternProperties
+    // This correctly represents "only validate keys matching the pattern" semantics
+    // and composes well with allOf (intersections)
+    const keyType = def.keyType;
+    const keyBag = keyType._zod.bag;
+    const patterns = keyBag?.patterns;
+    if (def.mode === "loose" && patterns && patterns.size > 0) {
+        // Use patternProperties for looseRecord with regex patterns
+        const valueSchema = process(def.valueType, ctx, {
+            ...params,
+            path: [...params.path, "patternProperties", "*"],
+        });
+        json.patternProperties = {};
+        for (const pattern of patterns) {
+            json.patternProperties[pattern.source] = valueSchema;
+        }
+    }
+    else {
+        // Default behavior: use propertyNames + additionalProperties
+        if (ctx.target === "draft-07" || ctx.target === "draft-2020-12") {
+            json.propertyNames = process(def.keyType, ctx, {
+                ...params,
+                path: [...params.path, "propertyNames"],
+            });
+        }
+        json.additionalProperties = process(def.valueType, ctx, {
+            ...params,
+            path: [...params.path, "additionalProperties"],
+        });
+    }
+    // Add required for keys with discrete values (enum, literal, etc.)
+    const keyValues = keyType._zod.values;
+    if (keyValues) {
+        const validKeyValues = [...keyValues].filter((v) => typeof v === "string" || typeof v === "number");
+        if (validKeyValues.length > 0) {
+            json.required = validKeyValues;
+        }
+    }
+};
+export const nullableProcessor = (schema, ctx, json, params) => {
+    const def = schema._zod.def;
+    const inner = process(def.innerType, ctx, params);
+    const seen = ctx.seen.get(schema);
+    if (ctx.target === "openapi-3.0") {
+        seen.ref = def.innerType;
+        json.nullable = true;
+    }
+    else {
+        json.anyOf = [inner, { type: "null" }];
+    }
+};
+export const nonoptionalProcessor = (schema, ctx, _json, params) => {
+    const def = schema._zod.def;
+    process(def.innerType, ctx, params);
+    const seen = ctx.seen.get(schema);
+    seen.ref = def.innerType;
+};
+export const defaultProcessor = (schema, ctx, json, params) => {
+    const def = schema._zod.def;
+    process(def.innerType, ctx, params);
+    const seen = ctx.seen.get(schema);
+    seen.ref = def.innerType;
+    json.default = JSON.parse(JSON.stringify(def.defaultValue));
+};
+export const prefaultProcessor = (schema, ctx, json, params) => {
+    const def = schema._zod.def;
+    process(def.innerType, ctx, params);
+    const seen = ctx.seen.get(schema);
+    seen.ref = def.innerType;
+    if (ctx.io === "input")
+        json._prefault = JSON.parse(JSON.stringify(def.defaultValue));
+};
+export const catchProcessor = (schema, ctx, json, params) => {
+    const def = schema._zod.def;
+    process(def.innerType, ctx, params);
+    const seen = ctx.seen.get(schema);
+    seen.ref = def.innerType;
+    let catchValue;
+    try {
+        catchValue = def.catchValue(undefined);
+    }
+    catch {
+        throw new Error("Dynamic catch values are not supported in JSON Schema");
+    }
+    json.default = catchValue;
+};
+export const pipeProcessor = (schema, ctx, _json, params) => {
+    const def = schema._zod.def;
+    const inIsTransform = def.in._zod.traits.has("$ZodTransform");
+    const innerType = ctx.io === "input" ? (inIsTransform ? def.out : def.in) : def.out;
+    process(innerType, ctx, params);
+    const seen = ctx.seen.get(schema);
+    seen.ref = innerType;
+};
+export const readonlyProcessor = (schema, ctx, json, params) => {
+    const def = schema._zod.def;
+    process(def.innerType, ctx, params);
+    const seen = ctx.seen.get(schema);
+    seen.ref = def.innerType;
+    json.readOnly = true;
+};
+export const promiseProcessor = (schema, ctx, _json, params) => {
+    const def = schema._zod.def;
+    process(def.innerType, ctx, params);
+    const seen = ctx.seen.get(schema);
+    seen.ref = def.innerType;
+};
+export const optionalProcessor = (schema, ctx, _json, params) => {
+    const def = schema._zod.def;
+    process(def.innerType, ctx, params);
+    const seen = ctx.seen.get(schema);
+    seen.ref = def.innerType;
+};
+export const lazyProcessor = (schema, ctx, _json, params) => {
+    const innerType = schema._zod.innerType;
+    process(innerType, ctx, params);
+    const seen = ctx.seen.get(schema);
+    seen.ref = innerType;
+};
+// ==================== ALL PROCESSORS ====================
+export const allProcessors = {
+    string: stringProcessor,
+    number: numberProcessor,
+    boolean: booleanProcessor,
+    bigint: bigintProcessor,
+    symbol: symbolProcessor,
+    null: nullProcessor,
+    undefined: undefinedProcessor,
+    void: voidProcessor,
+    never: neverProcessor,
+    any: anyProcessor,
+    unknown: unknownProcessor,
+    date: dateProcessor,
+    enum: enumProcessor,
+    literal: literalProcessor,
+    nan: nanProcessor,
+    template_literal: templateLiteralProcessor,
+    file: fileProcessor,
+    success: successProcessor,
+    custom: customProcessor,
+    function: functionProcessor,
+    transform: transformProcessor,
+    map: mapProcessor,
+    set: setProcessor,
+    array: arrayProcessor,
+    object: objectProcessor,
+    union: unionProcessor,
+    intersection: intersectionProcessor,
+    tuple: tupleProcessor,
+    record: recordProcessor,
+    nullable: nullableProcessor,
+    nonoptional: nonoptionalProcessor,
+    default: defaultProcessor,
+    prefault: prefaultProcessor,
+    catch: catchProcessor,
+    pipe: pipeProcessor,
+    readonly: readonlyProcessor,
+    promise: promiseProcessor,
+    optional: optionalProcessor,
+    lazy: lazyProcessor,
+};
+export function toJSONSchema(input, params) {
+    if ("_idmap" in input) {
+        // Registry case
+        const registry = input;
+        const ctx = initializeContext({ ...params, processors: allProcessors });
+        const defs = {};
+        // First pass: process all schemas to build the seen map
+        for (const entry of registry._idmap.entries()) {
+            const [_, schema] = entry;
+            process(schema, ctx);
+        }
+        const schemas = {};
+        const external = {
+            registry,
+            uri: params?.uri,
+            defs,
+        };
+        // Update the context with external configuration
+        ctx.external = external;
+        // Second pass: emit each schema
+        for (const entry of registry._idmap.entries()) {
+            const [key, schema] = entry;
+            extractDefs(ctx, schema);
+            schemas[key] = finalize(ctx, schema);
+        }
+        if (Object.keys(defs).length > 0) {
+            const defsSegment = ctx.target === "draft-2020-12" ? "$defs" : "definitions";
+            schemas.__shared = {
+                [defsSegment]: defs,
+            };
+        }
+        return { schemas };
+    }
+    // Single schema case
+    const ctx = initializeContext({ ...params, processors: allProcessors });
+    process(input, ctx);
+    extractDefs(ctx, input);
+    return finalize(ctx, input);
+}
+¶  import { allProcessors } from "./json-schema-processors.js";
+import { extractDefs, finalize, initializeContext, process, } from "./to-json-schema.js";
+/**
+ * Legacy class-based interface for JSON Schema generation.
+ * This class wraps the new functional implementation to provide backward compatibility.
+ *
+ * @deprecated Use the `toJSONSchema` function instead for new code.
+ *
+ * @example
+ * ```typescript
+ * // Legacy usage (still supported)
+ * const gen = new JSONSchemaGenerator({ target: "draft-07" });
+ * gen.process(schema);
+ * const result = gen.emit(schema);
+ *
+ * // Preferred modern usage
+ * const result = toJSONSchema(schema, { target: "draft-07" });
+ * ```
+ */
+export class JSONSchemaGenerator {
+    /** @deprecated Access via ctx instead */
+    get metadataRegistry() {
+        return this.ctx.metadataRegistry;
+    }
+    /** @deprecated Access via ctx instead */
+    get target() {
+        return this.ctx.target;
+    }
+    /** @deprecated Access via ctx instead */
+    get unrepresentable() {
+        return this.ctx.unrepresentable;
+    }
+    /** @deprecated Access via ctx instead */
+    get override() {
+        return this.ctx.override;
+    }
+    /** @deprecated Access via ctx instead */
+    get io() {
+        return this.ctx.io;
+    }
+    /** @deprecated Access via ctx instead */
+    get counter() {
+        return this.ctx.counter;
+    }
+    set counter(value) {
+        this.ctx.counter = value;
+    }
+    /** @deprecated Access via ctx instead */
+    get seen() {
+        return this.ctx.seen;
+    }
+    constructor(params) {
+        // Normalize target for internal context
+        let normalizedTarget = params?.target ?? "draft-2020-12";
+        if (normalizedTarget === "draft-4")
+            normalizedTarget = "draft-04";
+        if (normalizedTarget === "draft-7")
+            normalizedTarget = "draft-07";
+        this.ctx = initializeContext({
+            processors: allProcessors,
+            target: normalizedTarget,
+            ...(params?.metadata && { metadata: params.metadata }),
+            ...(params?.unrepresentable && { unrepresentable: params.unrepresentable }),
+            ...(params?.override && { override: params.override }),
+            ...(params?.io && { io: params.io }),
+        });
+    }
+    /**
+     * Process a schema to prepare it for JSON Schema generation.
+     * This must be called before emit().
+     */
+    process(schema, _params = { path: [], schemaPath: [] }) {
+        return process(schema, this.ctx, _params);
+    }
+    /**
+     * Emit the final JSON Schema after processing.
+     * Must call process() first.
+     */
+    emit(schema, _params) {
+        // Apply emit params to the context
+        if (_params) {
+            if (_params.cycles)
+                this.ctx.cycles = _params.cycles;
+            if (_params.reused)
+                this.ctx.reused = _params.reused;
+            if (_params.external)
+                this.ctx.external = _params.external;
+        }
+        extractDefs(this.ctx, schema);
+        const result = finalize(this.ctx, schema);
+        // Strip ~standard property to match old implementation's return type
+        const { "~standard": _, ...plainResult } = result;
+        return plainResult;
+    }
+}
+eÉ¶  export {};
+     export { _lt as lt, _lte as lte, _gt as gt, _gte as gte, _positive as positive, _negative as negative, _nonpositive as nonpositive, _nonnegative as nonnegative, _multipleOf as multipleOf, _maxSize as maxSize, _minSize as minSize, _size as size, _maxLength as maxLength, _minLength as minLength, _length as length, _regex as regex, _lowercase as lowercase, _uppercase as uppercase, _includes as includes, _startsWith as startsWith, _endsWith as endsWith, _property as property, _mime as mime, _overwrite as overwrite, _normalize as normalize, _trim as trim, _toLowerCase as toLowerCase, _toUpperCase as toUpperCase, _slugify as slugify, } from "../core/index.js";
+ import * as core from "../core/index.js";
+import * as schemas from "./schemas.js";
+export const ZodISODateTime = /*@__PURE__*/ core.$constructor("ZodISODateTime", (inst, def) => {
+    core.$ZodISODateTime.init(inst, def);
+    schemas.ZodStringFormat.init(inst, def);
+});
+export function datetime(params) {
+    return core._isoDateTime(ZodISODateTime, params);
+}
+export const ZodISODate = /*@__PURE__*/ core.$constructor("ZodISODate", (inst, def) => {
+    core.$ZodISODate.init(inst, def);
+    schemas.ZodStringFormat.init(inst, def);
+});
+export function date(params) {
+    return core._isoDate(ZodISODate, params);
+}
+export const ZodISOTime = /*@__PURE__*/ core.$constructor("ZodISOTime", (inst, def) => {
+    core.$ZodISOTime.init(inst, def);
+    schemas.ZodStringFormat.init(inst, def);
+});
+export function time(params) {
+    return core._isoTime(ZodISOTime, params);
+}
+export const ZodISODuration = /*@__PURE__*/ core.$constructor("ZodISODuration", (inst, def) => {
+    core.$ZodISODuration.init(inst, def);
+    schemas.ZodStringFormat.init(inst, def);
+});
+export function duration(params) {
+    return core._isoDuration(ZodISODuration, params);
+}
+ import * as core from "../core/index.js";
+import { ZodRealError } from "./errors.js";
+export const parse = /* @__PURE__ */ core._parse(ZodRealError);
+export const parseAsync = /* @__PURE__ */ core._parseAsync(ZodRealError);
+export const safeParse = /* @__PURE__ */ core._safeParse(ZodRealError);
+export const safeParseAsync = /* @__PURE__ */ core._safeParseAsync(ZodRealError);
+// Codec functions
+export const encode = /* @__PURE__ */ core._encode(ZodRealError);
+export const decode = /* @__PURE__ */ core._decode(ZodRealError);
+export const encodeAsync = /* @__PURE__ */ core._encodeAsync(ZodRealError);
+export const decodeAsync = /* @__PURE__ */ core._decodeAsync(ZodRealError);
+export const safeEncode = /* @__PURE__ */ core._safeEncode(ZodRealError);
+export const safeDecode = /* @__PURE__ */ core._safeDecode(ZodRealError);
+export const safeEncodeAsync = /* @__PURE__ */ core._safeEncodeAsync(ZodRealError);
+export const safeDecodeAsync = /* @__PURE__ */ core._safeDecodeAsync(ZodRealError);
+   import * as core from "../core/index.js";
+import { $ZodError } from "../core/index.js";
+import * as util from "../core/util.js";
+const initializer = (inst, issues) => {
+    $ZodError.init(inst, issues);
+    inst.name = "ZodError";
+    Object.defineProperties(inst, {
+        format: {
+            value: (mapper) => core.formatError(inst, mapper),
+            // enumerable: false,
+        },
+        flatten: {
+            value: (mapper) => core.flattenError(inst, mapper),
+            // enumerable: false,
+        },
+        addIssue: {
+            value: (issue) => {
+                inst.issues.push(issue);
+                inst.message = JSON.stringify(inst.issues, util.jsonStringifyReplacer, 2);
+            },
+            // enumerable: false,
+        },
+        addIssues: {
+            value: (issues) => {
+                inst.issues.push(...issues);
+                inst.message = JSON.stringify(inst.issues, util.jsonStringifyReplacer, 2);
+            },
+            // enumerable: false,
+        },
+        isEmpty: {
+            get() {
+                return inst.issues.length === 0;
+            },
+            // enumerable: false,
+        },
+    });
+    // Object.defineProperty(inst, "isEmpty", {
+    //   get() {
+    //     return inst.issues.length === 0;
+    //   },
+    // });
+};
+export const ZodError = /*@__PURE__*/ core.$constructor("ZodError", initializer);
+export const ZodRealError = /*@__PURE__*/ core.$constructor("ZodError", initializer, {
+    Parent: Error,
+});
+// /** @deprecated Use `z.core.$ZodErrorMapCtx` instead. */
+// export type ErrorMapCtx = core.$ZodErrorMapCtx;
+       // Zod 3 compat layer
+import * as core from "../core/index.js";
+/** @deprecated Use the raw string literal codes instead, e.g. "invalid_type". */
+export const ZodIssueCode = {
+    invalid_type: "invalid_type",
+    too_big: "too_big",
+    too_small: "too_small",
+    invalid_format: "invalid_format",
+    not_multiple_of: "not_multiple_of",
+    unrecognized_keys: "unrecognized_keys",
+    invalid_union: "invalid_union",
+    invalid_key: "invalid_key",
+    invalid_element: "invalid_element",
+    invalid_value: "invalid_value",
+    custom: "custom",
+};
+export { $brand, config } from "../core/index.js";
+/** @deprecated Use `z.config(params)` instead. */
+export function setErrorMap(map) {
+    core.config({
+        customError: map,
+    });
+}
+/** @deprecated Use `z.config()` instead. */
+export function getErrorMap() {
+    return core.config().customError;
+}
+/** @deprecated Do not use. Stub definition, only included for zod-to-json-schema compatibility. */
+export var ZodFirstPartyTypeKind;
+(function (ZodFirstPartyTypeKind) {
+})(ZodFirstPartyTypeKind || (ZodFirstPartyTypeKind = {}));
+      import { globalRegistry } from "../core/registries.js";
+import * as _checks from "./checks.js";
+import * as _iso from "./iso.js";
+import * as _schemas from "./schemas.js";
+// Local z object to avoid circular dependency with ../index.js
+const z = {
+    ..._schemas,
+    ..._checks,
+    iso: _iso,
+};
+// Keys that are recognized and handled by the conversion logic
+const RECOGNIZED_KEYS = /*@__PURE__*/ new Set([
+    // Schema identification
+    "$schema",
+    "$ref",
+    "$defs",
+    "definitions",
+    // Core schema keywords
+    "$id",
+    "id",
+    "$comment",
+    "$anchor",
+    "$vocabulary",
+    "$dynamicRef",
+    "$dynamicAnchor",
+    // Type
+    "type",
+    "enum",
+    "const",
+    // Composition
+    "anyOf",
+    "oneOf",
+    "allOf",
+    "not",
+    // Object
+    "properties",
+    "required",
+    "additionalProperties",
+    "patternProperties",
+    "propertyNames",
+    "minProperties",
+    "maxProperties",
+    // Array
+    "items",
+    "prefixItems",
+    "additionalItems",
+    "minItems",
+    "maxItems",
+    "uniqueItems",
+    "contains",
+    "minContains",
+    "maxContains",
+    // String
+    "minLength",
+    "maxLength",
+    "pattern",
+    "format",
+    // Number
+    "minimum",
+    "maximum",
+    "exclusiveMinimum",
+    "exclusiveMaximum",
+    "multipleOf",
+    // Already handled metadata
+    "description",
+    "default",
+    // Content
+    "contentEncoding",
+    "contentMediaType",
+    "contentSchema",
+    // Unsupported (error-throwing)
+    "unevaluatedItems",
+    "unevaluatedProperties",
+    "if",
+    "then",
+    "else",
+    "dependentSchemas",
+    "dependentRequired",
+    // OpenAPI
+    "nullable",
+    "readOnly",
+]);
+function detectVersion(schema, defaultTarget) {
+    const $schema = schema.$schema;
+    if ($schema === "https://json-schema.org/draft/2020-12/schema") {
+        return "draft-2020-12";
+    }
+    if ($schema === "http://json-schema.org/draft-07/schema#") {
+        return "draft-7";
+    }
+    if ($schema === "http://json-schema.org/draft-04/schema#") {
+        return "draft-4";
+    }
+    // Use defaultTarget if provided, otherwise default to draft-2020-12
+    return defaultTarget ?? "draft-2020-12";
+}
+function resolveRef(ref, ctx) {
+    if (!ref.startsWith("#")) {
+        throw new Error("External $ref is not supported, only local refs (#/...) are allowed");
+    }
+    const path = ref.slice(1).split("/").filter(Boolean);
+    // Handle root reference "#"
+    if (path.length === 0) {
+        return ctx.rootSchema;
+    }
+    const defsKey = ctx.version === "draft-2020-12" ? "$defs" : "definitions";
+    if (path[0] === defsKey) {
+        const key = path[1];
+        if (!key || !ctx.defs[key]) {
+            throw new Error(`Reference not found: ${ref}`);
+        }
+        return ctx.defs[key];
+    }
+    throw new Error(`Reference not found: ${ref}`);
+}
+function convertBaseSchema(schema, ctx) {
+    // Handle unsupported features
+    if (schema.not !== undefined) {
+        // Special case: { not: {} } represents never
+        if (typeof schema.not === "object" && Object.keys(schema.not).length === 0) {
+            return z.never();
+        }
+        throw new Error("not is not supported in Zod (except { not: {} } for never)");
+    }
+    if (schema.unevaluatedItems !== undefined) {
+        throw new Error("unevaluatedItems is not supported");
+    }
+    if (schema.unevaluatedProperties !== undefined) {
+        throw new Error("unevaluatedProperties is not supported");
+    }
+    if (schema.if !== undefined || schema.then !== undefined || schema.else !== undefined) {
+        throw new Error("Conditional schemas (if/then/else) are not supported");
+    }
+    if (schema.dependentSchemas !== undefined || schema.dependentRequired !== undefined) {
+        throw new Error("dependentSchemas and dependentRequired are not supported");
+    }
+    // Handle $ref
+    if (schema.$ref) {
+        const refPath = schema.$ref;
+        if (ctx.refs.has(refPath)) {
+            return ctx.refs.get(refPath);
+        }
+        if (ctx.processing.has(refPath)) {
+            // Circular reference - use lazy
+            return z.lazy(() => {
+                if (!ctx.refs.has(refPath)) {
+                    throw new Error(`Circular reference not resolved: ${refPath}`);
+                }
+                return ctx.refs.get(refPath);
+            });
+        }
+        ctx.processing.add(refPath);
+        const resolved = resolveRef(refPath, ctx);
+        const zodSchema = convertSchema(resolved, ctx);
+        ctx.refs.set(refPath, zodSchema);
+        ctx.processing.delete(refPath);
+        return zodSchema;
+    }
+    // Handle enum
+    if (schema.enum !== undefined) {
+        const enumValues = schema.enum;
+        // Special case: OpenAPI 3.0 null representation { type: "string", nullable: true, enum: [null] }
+        if (ctx.version === "openapi-3.0" &&
+            schema.nullable === true &&
+            enumValues.length === 1 &&
+            enumValues[0] === null) {
+            return z.null();
+        }
+        if (enumValues.length === 0) {
+            return z.never();
+        }
+        if (enumValues.length === 1) {
+            return z.literal(enumValues[0]);
+        }
+        // Check if all values are strings
+        if (enumValues.every((v) => typeof v === "string")) {
+            return z.enum(enumValues);
+        }
+        // Mixed types - use union of literals
+        const literalSchemas = enumValues.map((v) => z.literal(v));
+        if (literalSchemas.length < 2) {
+            return literalSchemas[0];
+        }
+        return z.union([literalSchemas[0], literalSchemas[1], ...literalSchemas.slice(2)]);
+    }
+    // Handle const
+    if (schema.const !== undefined) {
+        return z.literal(schema.const);
+    }
+    // Handle type
+    const type = schema.type;
+    if (Array.isArray(type)) {
+        // Expand type array into anyOf union
+        const typeSchemas = type.map((t) => {
+            const typeSchema = { ...schema, type: t };
+            return convertBaseSchema(typeSchema, ctx);
+        });
+        if (typeSchemas.length === 0) {
+            return z.never();
+        }
+        if (typeSchemas.length === 1) {
+            return typeSchemas[0];
+        }
+        return z.union(typeSchemas);
+    }
+    if (!type) {
+        // No type specified - empty schema (any)
+        return z.any();
+    }
+    let zodSchema;
+    switch (type) {
+        case "string": {
+            let stringSchema = z.string();
+            // Apply format using .check() with Zod format functions
+            if (schema.format) {
+                const format = schema.format;
+                // Map common formats to Zod check functions
+                if (format === "email") {
+                    stringSchema = stringSchema.check(z.email());
+                }
+                else if (format === "uri" || format === "uri-reference") {
+                    stringSchema = stringSchema.check(z.url());
+                }
+                else if (format === "uuid" || format === "guid") {
+                    stringSchema = stringSchema.check(z.uuid());
+                }
+                else if (format === "date-time") {
+                    stringSchema = stringSchema.check(z.iso.datetime());
+                }
+                else if (format === "date") {
+                    stringSchema = stringSchema.check(z.iso.date());
+                }
+                else if (format === "time") {
+                    stringSchema = stringSchema.check(z.iso.time());
+                }
+                else if (format === "duration") {
+                    stringSchema = stringSchema.check(z.iso.duration());
+                }
+                else if (format === "ipv4") {
+                    stringSchema = stringSchema.check(z.ipv4());
+                }
+                else if (format === "ipv6") {
+                    stringSchema = stringSchema.check(z.ipv6());
+                }
+                else if (format === "mac") {
+                    stringSchema = stringSchema.check(z.mac());
+                }
+                else if (format === "cidr") {
+                    stringSchema = stringSchema.check(z.cidrv4());
+                }
+                else if (format === "cidr-v6") {
+                    stringSchema = stringSchema.check(z.cidrv6());
+                }
+                else if (format === "base64") {
+                    stringSchema = stringSchema.check(z.base64());
+                }
+                else if (format === "base64url") {
+                    stringSchema = stringSchema.check(z.base64url());
+                }
+                else if (format === "e164") {
+                    stringSchema = stringSchema.check(z.e164());
+                }
+                else if (format === "jwt") {
+                    stringSchema = stringSchema.check(z.jwt());
+                }
+                else if (format === "emoji") {
+                    stringSchema = stringSchema.check(z.emoji());
+                }
+                else if (format === "nanoid") {
+                    stringSchema = stringSchema.check(z.nanoid());
+                }
+                else if (format === "cuid") {
+                    stringSchema = stringSchema.check(z.cuid());
+                }
+                else if (format === "cuid2") {
+                    stringSchema = stringSchema.check(z.cuid2());
+                }
+                else if (format === "ulid") {
+                    stringSchema = stringSchema.check(z.ulid());
+                }
+                else if (format === "xid") {
+                    stringSchema = stringSchema.check(z.xid());
+                }
+                else if (format === "ksuid") {
+                    stringSchema = stringSchema.check(z.ksuid());
+                }
+                // Note: json-string format is not currently supported by Zod
+                // Custom formats are ignored - keep as plain string
+            }
+            // Apply constraints
+            if (typeof schema.minLength === "number") {
+                stringSchema = stringSchema.min(schema.minLength);
+            }
+            if (typeof schema.maxLength === "number") {
+                stringSchema = stringSchema.max(schema.maxLength);
+            }
+            if (schema.pattern) {
+                // JSON Schema patterns are not implicitly anchored (match anywhere in string)
+                stringSchema = stringSchema.regex(new RegExp(schema.pattern));
+            }
+            zodSchema = stringSchema;
+            break;
+        }
+        case "number":
+        case "integer": {
+            let numberSchema = type === "integer" ? z.number().int() : z.number();
+            // Apply constraints
+            if (typeof schema.minimum === "number") {
+                numberSchema = numberSchema.min(schema.minimum);
+            }
+            if (typeof schema.maximum === "number") {
+                numberSchema = numberSchema.max(schema.maximum);
+            }
+            if (typeof schema.exclusiveMinimum === "number") {
+                numberSchema = numberSchema.gt(schema.exclusiveMinimum);
+            }
+            else if (schema.exclusiveMinimum === true && typeof schema.minimum === "number") {
+                numberSchema = numberSchema.gt(schema.minimum);
+            }
+            if (typeof schema.exclusiveMaximum === "number") {
+                numberSchema = numberSchema.lt(schema.exclusiveMaximum);
+            }
+            else if (schema.exclusiveMaximum === true && typeof schema.maximum === "number") {
+                numberSchema = numberSchema.lt(schema.maximum);
+            }
+            if (typeof schema.multipleOf === "number") {
+                numberSchema = numberSchema.multipleOf(schema.multipleOf);
+            }
+            zodSchema = numberSchema;
+            break;
+        }
+        case "boolean": {
+            zodSchema = z.boolean();
+            break;
+        }
+        case "null": {
+            zodSchema = z.null();
+            break;
+        }
+        case "object": {
+            const shape = {};
+            const properties = schema.properties || {};
+            const requiredSet = new Set(schema.required || []);
+            // Convert properties - mark optional ones
+            for (const [key, propSchema] of Object.entries(properties)) {
+                const propZodSchema = convertSchema(propSchema, ctx);
+                // If not in required array, make it optional
+                shape[key] = requiredSet.has(key) ? propZodSchema : propZodSchema.optional();
+            }
+            // Handle propertyNames
+            if (schema.propertyNames) {
+                const keySchema = convertSchema(schema.propertyNames, ctx);
+                const valueSchema = schema.additionalProperties && typeof schema.additionalProperties === "object"
+                    ? convertSchema(schema.additionalProperties, ctx)
+                    : z.any();
+                // Case A: No properties (pure record)
+                if (Object.keys(shape).length === 0) {
+                    zodSchema = z.record(keySchema, valueSchema);
+                    break;
+                }
+                // Case B: With properties (intersection of object and looseRecord)
+                const objectSchema = z.object(shape).passthrough();
+                const recordSchema = z.looseRecord(keySchema, valueSchema);
+                zodSchema = z.intersection(objectSchema, recordSchema);
+                break;
+            }
+            // Handle patternProperties
+            if (schema.patternProperties) {
+                // patternProperties: keys matching pattern must satisfy corresponding schema
+                // Use loose records so non-matching keys pass through
+                const patternProps = schema.patternProperties;
+                const patternKeys = Object.keys(patternProps);
+                const looseRecords = [];
+                for (const pattern of patternKeys) {
+                    const patternValue = convertSchema(patternProps[pattern], ctx);
+                    const keySchema = z.string().regex(new RegExp(pattern));
+                    looseRecords.push(z.looseRecord(keySchema, patternValue));
+                }
+                // Build intersection: object schema + all pattern property records
+                const schemasToIntersect = [];
+                if (Object.keys(shape).length > 0) {
+                    // Use passthrough so patternProperties can validate additional keys
+                    schemasToIntersect.push(z.object(shape).passthrough());
+                }
+                schemasToIntersect.push(...looseRecords);
+                if (schemasToIntersect.length === 0) {
+                    zodSchema = z.object({}).passthrough();
+                }
+                else if (schemasToIntersect.length === 1) {
+                    zodSchema = schemasToIntersect[0];
+                }
+                else {
+                    // Chain intersections: (A & B) & C & D ...
+                    let result = z.intersection(schemasToIntersect[0], schemasToIntersect[1]);
+                    for (let i = 2; i < schemasToIntersect.length; i++) {
+                        result = z.intersection(result, schemasToIntersect[i]);
+                    }
+                    zodSchema = result;
+                }
+                break;
+            }
+            // Handle additionalProperties
+            // In JSON Schema, additionalProperties defaults to true (allow any extra properties)
+            // In Zod, objects strip unknown keys by default, so we need to handle this explicitly
+            const objectSchema = z.object(shape);
+            if (schema.additionalProperties === false) {
+                // Strict mode - no extra properties allowed
+                zodSchema = objectSchema.strict();
+            }
+            else if (typeof schema.additionalProperties === "object") {
+                // Extra properties must match the specified schema
+                zodSchema = objectSchema.catchall(convertSchema(schema.additionalProperties, ctx));
+            }
+            else {
+                // additionalProperties is true or undefined - allow any extra properties (passthrough)
+                zodSchema = objectSchema.passthrough();
+            }
+            break;
+        }
+        case "array": {
+            // TODO: uniqueItems is not supported
+            // TODO: contains/minContains/maxContains are not supported
+            // Check if this is a tuple (prefixItems or items as array)
+            const prefixItems = schema.prefixItems;
+            const items = schema.items;
+            if (prefixItems && Array.isArray(prefixItems)) {
+                // Tuple with prefixItems (draft-2020-12)
+                const tupleItems = prefixItems.map((item) => convertSchema(item, ctx));
+                const rest = items && typeof items === "object" && !Array.isArray(items)
+                    ? convertSchema(items, ctx)
+                    : undefined;
+                if (rest) {
+                    zodSchema = z.tuple(tupleItems).rest(rest);
+                }
+                else {
+                    zodSchema = z.tuple(tupleItems);
+                }
+                // Apply minItems/maxItems constraints to tuples
+                if (typeof schema.minItems === "number") {
+                    zodSchema = zodSchema.check(z.minLength(schema.minItems));
+                }
+                if (typeof schema.maxItems === "number") {
+                    zodSchema = zodSchema.check(z.maxLength(schema.maxItems));
+                }
+            }
+            else if (Array.isArray(items)) {
+                // Tuple with items array (draft-7)
+                const tupleItems = items.map((item) => convertSchema(item, ctx));
+                const rest = schema.additionalItems && typeof schema.additionalItems === "object"
+                    ? convertSchema(schema.additionalItems, ctx)
+                    : undefined; // additionalItems: false means no rest, handled by default tuple behavior
+                if (rest) {
+                    zodSchema = z.tuple(tupleItems).rest(rest);
+                }
+                else {
+                    zodSchema = z.tuple(tupleItems);
+                }
+                // Apply minItems/maxItems constraints to tuples
+                if (typeof schema.minItems === "number") {
+                    zodSchema = zodSchema.check(z.minLength(schema.minItems));
+                }
+                if (typeof schema.maxItems === "number") {
+                    zodSchema = zodSchema.check(z.maxLength(schema.maxItems));
+                }
+            }
+            else if (items !== undefined) {
+                // Regular array
+                const element = convertSchema(items, ctx);
+                let arraySchema = z.array(element);
+                // Apply constraints
+                if (typeof schema.minItems === "number") {
+                    arraySchema = arraySchema.min(schema.minItems);
+                }
+                if (typeof schema.maxItems === "number") {
+                    arraySchema = arraySchema.max(schema.maxItems);
+                }
+                zodSchema = arraySchema;
+            }
+            else {
+                // No items specified - array of any
+                zodSchema = z.array(z.any());
+            }
+            break;
+        }
+        default:
+            throw new Error(`Unsupported type: ${type}`);
+    }
+    return zodSchema;
+}
+function convertSchema(schema, ctx) {
+    if (typeof schema === "boolean") {
+        return schema ? z.any() : z.never();
+    }
+    // Convert base schema first (ignoring composition keywords)
+    let baseSchema = convertBaseSchema(schema, ctx);
+    const hasExplicitType = schema.type || schema.enum !== undefined || schema.const !== undefined;
+    // Process composition keywords LAST (they can appear together)
+    // Handle anyOf - wrap base schema with union
+    if (schema.anyOf && Array.isArray(schema.anyOf)) {
+        const options = schema.anyOf.map((s) => convertSchema(s, ctx));
+        const anyOfUnion = z.union(options);
+        baseSchema = hasExplicitType ? z.intersection(baseSchema, anyOfUnion) : anyOfUnion;
+    }
+    // Handle oneOf - exclusive union (exactly one must match)
+    if (schema.oneOf && Array.isArray(schema.oneOf)) {
+        const options = schema.oneOf.map((s) => convertSchema(s, ctx));
+        const oneOfUnion = z.xor(options);
+        baseSchema = hasExplicitType ? z.intersection(baseSchema, oneOfUnion) : oneOfUnion;
+    }
+    // Handle allOf - wrap base schema with intersection
+    if (schema.allOf && Array.isArray(schema.allOf)) {
+        if (schema.allOf.length === 0) {
+            baseSchema = hasExplicitType ? baseSchema : z.any();
+        }
+        else {
+            let result = hasExplicitType ? baseSchema : convertSchema(schema.allOf[0], ctx);
+            const startIdx = hasExplicitType ? 0 : 1;
+            for (let i = startIdx; i < schema.allOf.length; i++) {
+                result = z.intersection(result, convertSchema(schema.allOf[i], ctx));
+            }
+            baseSchema = result;
+        }
+    }
+    // Handle nullable (OpenAPI 3.0)
+    if (schema.nullable === true && ctx.version === "openapi-3.0") {
+        baseSchema = z.nullable(baseSchema);
+    }
+    // Handle readOnly
+    if (schema.readOnly === true) {
+        baseSchema = z.readonly(baseSchema);
+    }
+    // Apply `default` so it wraps the fully-composed schema. This ensures
+    // `parse(undefined) -> default` works regardless of which branch of
+    // `convertBaseSchema` produced the inner schema (enum/const/not/typed/etc.).
+    if (schema.default !== undefined) {
+        baseSchema = baseSchema.default(schema.default);
+    }
+    // Collect non-description annotation metadata into the user-supplied
+    // registry. Description is handled separately below via `.describe()` to
+    // preserve the contract that `schema.description` reads from globalRegistry.
+    const extraMeta = {};
+    const coreMetadataKeys = ["$id", "id", "$comment", "$anchor", "$vocabulary", "$dynamicRef", "$dynamicAnchor"];
+    for (const key of coreMetadataKeys) {
+        if (key in schema) {
+            extraMeta[key] = schema[key];
+        }
+    }
+    const contentMetadataKeys = ["contentEncoding", "contentMediaType", "contentSchema"];
+    for (const key of contentMetadataKeys) {
+        if (key in schema) {
+            extraMeta[key] = schema[key];
+        }
+    }
+    for (const key of Object.keys(schema)) {
+        if (!RECOGNIZED_KEYS.has(key)) {
+            extraMeta[key] = schema[key];
+        }
+    }
+    if (Object.keys(extraMeta).length > 0) {
+        ctx.registry.add(baseSchema, extraMeta);
+    }
+    // Apply description last. `.describe()` clones the schema and sets
+    // `_zod.parent` on the clone, so registry lookups on the returned reference
+    // still resolve `extraMeta` via parent inheritance.
+    if (schema.description) {
+        baseSchema = baseSchema.describe(schema.description);
+    }
+    return baseSchema;
+}
+/**
+ * Converts a JSON Schema to a Zod schema. This function should be considered semi-experimental. It's behavior is liable to change. */
+export function fromJSONSchema(schema, params) {
+    // Handle boolean schemas
+    if (typeof schema === "boolean") {
+        return schema ? z.any() : z.never();
+    }
+    // Normalize input via a JSON round-trip. This guarantees the converter
+    // walks a plain, finite, JSON-valid object graph: cyclic inputs fail here,
+    // getter/Proxy-based properties are materialized into static values, and
+    // class instances collapse to plain objects.
+    let normalized;
+    try {
+        normalized = JSON.parse(JSON.stringify(schema));
+    }
+    catch {
+        throw new Error("fromJSONSchema input is not valid JSON (possibly cyclic); use $defs/$ref for recursive schemas");
+    }
+    const version = detectVersion(normalized, params?.defaultTarget);
+    const defs = (normalized.$defs || normalized.definitions || {});
+    const ctx = {
+        version,
+        defs,
+        refs: new Map(),
+        processing: new Set(),
+        rootSchema: normalized,
+        registry: params?.registry ?? globalRegistry,
+    };
+    return convertSchema(normalized, ctx);
+}
+       import * as core from "../core/index.js";
+import * as schemas from "./schemas.js";
+export function string(params) {
+    return core._coercedString(schemas.ZodString, params);
+}
+export function number(params) {
+    return core._coercedNumber(schemas.ZodNumber, params);
+}
+export function boolean(params) {
+    return core._coercedBoolean(schemas.ZodBoolean, params);
+}
+export function bigint(params) {
+    return core._coercedBigint(schemas.ZodBigInt, params);
+}
+export function date(params) {
+    return core._coercedDate(schemas.ZodDate, params);
+}
+  
+=======================================================
+          RUNNING 50 AUTOMATED INTEGRATION & UNIT TEST CASES   
+       =======================================================
+
+       BROKARTA_IMAGE_DATA_BYTES_EXAMPLE       --- Category 1: Image Encryption & Hashing Logic ---
+   sƒ,^<ŠR#ìÌ)~¾°àxxJB’t‚làµ_¬n¬a       âœ“ [PASS] Test 1: encryptImageBuffer returns encrypted buffer, iv, and authTag
+@4it´§Øißl™=?£ŸªfD#þ¼s‡-t~‘BROKARTA_IMAGE_DATA_BYTES_EXAMPLE       âœ“ [PASS] Test 2: decryptImageBuffer successfully restores original buffer
+    âœ“ [PASS] Test 3: Encrypted buffer is not identical to raw buffer
+     @4it´§Øißl™=?£ŸªfD#þ¼s‡-t~‘âœ“ [PASS] Test 4: Decryption with incorrect secret key fails or produces invalid output
+       @4it´§Øißl™=?               ÿâœ“ [PASS] Test 5: Decryption with tampered authentication tag throws security error
+   âœ“ [PASS] Test 6: generateImageHash produces a 64-character hex string
+âœ“ [PASS] Test 7: Identical image buffers produce identical SHA-256 checksums
+ DIFFERENT_IMAGE_DATA    âœ“ [PASS] Test 8: Different image buffers produce different SHA-256 checksums
+ âœ“ [PASS] Test 9: saveUploadedFile handles null file gracefully
+       âœ“ [PASS] Test 10: saveUploadedFile rejects invalid subfolders
+âœ“ [PASS] Test 11: saveUploadedFile accepts valid subfolders and returns correct public path
+  âœ“ [PASS] Test 12: saveUploadedFile creates 32-hex character cryptographically hashed filename
+âœ“ [PASS] Test 13: saveUploadedFile preserves original file extension
+ âœ“ [PASS] Test 14: deleteUploadedFile ignores invalid paths not starting with /uploads/
+       âœ“ [PASS] Test 15: deleteUploadedFile handles null or undefined path safely
+   Successfully deleted upload file from filesystem: C:\Users\HP\Downloads\Brokarta final\public\uploads\testimonials\96b92654451e0b3b7b8771a90881a3ff.jpg
+
+--- Category 2: Lead Status Validation & API Logic ---
+âœ“ [PASS] Test 16: Schema accepts PENDING status
+      âœ“ [PASS] Test 17: Schema accepts CONTACTED status
+    âœ“ [PASS] Test 18: Schema accepts QUALIFIED status
+    âœ“ [PASS] Test 19: Schema accepts CLOSED status
+       âœ“ [PASS] Test 20: Schema accepts REJECTED status
+     âœ“ [PASS] Test 21: Schema rejects invalid status string
+       âœ“ [PASS] Test 22: Schema rejects empty status string
+ âœ“ [PASS] Test 23: Schema rejects non-string status
+   âœ“ [PASS] Test 24: Schema rejects missing status field
+âœ“ [PASS] Test 25: Schema outputs structured error message on validation failure
+      âœ“ [PASS] Test 26: Lead UUID dynamic parameter unwrapping handles UUID format
+ âœ“ [PASS] Test 27: Next.js 15 async params Promise unwrapping retrieves lead ID
+       âœ“ [PASS] Test 28: Non-existent lead ID generates 404 Not Found response
+      âœ“ [PASS] Test 29: Prisma error code P2025 maps to 404 status code
+    âœ“ [PASS] Test 30: Unauthenticated request returns 401 Unauthorized status
+    
+--- Category 3: Admin Popup Modal System ---
+  âœ“ [PASS] Test 31: AdminPopupModal supports alert popup state
+ âœ“ [PASS] Test 32: AdminPopupModal supports confirmation dialog state
+ âœ“ [PASS] Test 33: AdminPopupModal supports delete confirmation state
+ âœ“ [PASS] Test 34: AdminPopupModal supports success notification state
+âœ“ [PASS] Test 35: AdminPopupModal renders null when isOpen is false
+  âœ“ [PASS] Test 36: Top header decor bar is absent from AdminPopupModal
+âœ“ [PASS] Test 37: Escape key triggers close when loading is false
+    âœ“ [PASS] Test 38: Escape key is ignored when loading is true
+ âœ“ [PASS] Test 39: Backdrop click triggers close when loading is false
+âœ“ [PASS] Test 40: Backdrop click is ignored when loading is true
+     
+--- Category 4: Audit Logging & Database Utilities ---
+âœ“ [PASS] Test 41: recordAuditLog formats action 'UPDATE'
+     âœ“ [PASS] Test 42: recordAuditLog formats action 'DELETE'
+     âœ“ [PASS] Test 43: recordAuditLog formats entity 'Lead'
+       âœ“ [PASS] Test 44: recordAuditLog extracts client IP address from request headers
+     âœ“ [PASS] Test 45: triggerSyncRevalidation targets layout path /admin/leads
+   âœ“ [PASS] Test 46: triggerSyncRevalidation targets layout path /admin/dashboard
+       âœ“ [PASS] Test 47: CRM Leads pagination totalPages calculated correctly (15 records -> 2 pages)
+       âœ“ [PASS] Test 48: Leads query parameter builder formats status query correctly
+       âœ“ [PASS] Test 49: Leads search query parameter URL-encodes special characters
+âœ“ [PASS] Test 50: Bulk status update payload structure is valid
+      
+--- Category 5: Edge-Case & Input Boundary Stress Tests ---
+   âœ“ [PASS] Test 51: Invalid date strings parse as NaN and are safely filtered from Prisma queries
+      âœ“ [PASS] Test 52: System safely handles extremely long inputs
+âœ“ [PASS] Test 53: React default JSX output sanitizes script tags preventing stored XSS
+       âœ“ [PASS] Test 54: Bulk action handles empty selection arrays without throwing database errors
+âœ“ [PASS] Test 55: Rapid double-click submission guard prevents duplicate network requests
+    
+--- Category 6: Form Input Validation & Sanitization ---
+      âœ“ [PASS] Test 56: Phone number regex accepts valid 10-digit number
+   âœ“ [PASS] Test 57: Phone number regex rejects invalid 5-digit number
+  âœ“ [PASS] Test 58: Email schema accepts valid business email
+  âœ“ [PASS] Test 59: Email schema allows optional empty string
+  âœ“ [PASS] Test 60: Input category normalizer maps 'book a demo' to BOOK_A_DEMO
+âœ“ [PASS] Test 61: Input category normalizer maps 'join as broker' to JOIN_AS_BROKER
+  âœ“ [PASS] Test 62: Input category normalizer maps 'enterprise use' to ENTERPRISE_USE
+  âœ“ [PASS] Test 63: User type normalizer maps 'broker' to BROKER
+       âœ“ [PASS] Test 64: User type normalizer defaults unknown roles to OTHERS
+      âœ“ [PASS] Test 65: Feedback text schema rejects inputs exceeding 500 characters
+       
+--- Category 7: Dynamic Route & SEO Meta Utilities ---
+âœ“ [PASS] Test 66: SEO page mapping maps 'home' to root path '/'
+      âœ“ [PASS] Test 67: SEO page mapping maps 'about-us' to '/about-us'
+    âœ“ [PASS] Test 68: SEO page mapping maps 'what-we-offer' to '/what-we-offer'
+  âœ“ [PASS] Test 69: SEO page mapping maps 'become-a-user' to '/become-a-user'
+  âœ“ [PASS] Test 70: SEO page mapping maps 'connect-now' to '/connect-now'
+      
+--- Category 8: Security & Upload Safety ---
+  SAME_CONTENT                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            

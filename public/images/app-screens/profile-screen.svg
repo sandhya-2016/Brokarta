@@ -1,0 +1,326 @@
+<svg width="430" height="700" viewBox="0 0 430 932" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#00cc9c" stop-opacity="0.08"/>
+      <stop offset="70%" stop-color="#00cc9c" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="phoneBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9a9a9e"/>
+      <stop offset="18%" stop-color="#e4e4e7"/>
+      <stop offset="35%" stop-color="#6f6f74"/>
+      <stop offset="55%" stop-color="#8f8f94"/>
+      <stop offset="75%" stop-color="#4a4a4e"/>
+      <stop offset="100%" stop-color="#232326"/>
+    </linearGradient>
+
+    <linearGradient id="buttonMetal" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#57575b"/>
+      <stop offset="50%" stop-color="#c9c9cd"/>
+      <stop offset="100%" stop-color="#3a3a3d"/>
+    </linearGradient>
+
+    <linearGradient id="glassSheen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="18%" stop-color="#ffffff" stop-opacity="0.08"/>
+      <stop offset="45%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <radialGradient id="cameraLens" cx="35%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#5a7ea8"/>
+      <stop offset="45%" stop-color="#12181f"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </radialGradient>
+
+    <linearGradient id="conicRing" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00cc9c"/>
+      <stop offset="70%" stop-color="#00cc9c"/>
+      <stop offset="85%" stop-color="#f6a200"/>
+      <stop offset="100%" stop-color="#00cc9c"/>
+    </linearGradient>
+
+    <linearGradient id="skySunsetA" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#3a3f6b"/>
+      <stop offset="55%" stop-color="#8a5a7a"/>
+      <stop offset="100%" stop-color="#e8a35c"/>
+    </linearGradient>
+    <linearGradient id="skyDuskB" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1c2b45"/>
+      <stop offset="55%" stop-color="#33507a"/>
+      <stop offset="100%" stop-color="#6f93b8"/>
+    </linearGradient>
+    <linearGradient id="towerGlassA" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0e1520"/>
+      <stop offset="50%" stop-color="#233246"/>
+      <stop offset="100%" stop-color="#0e1520"/>
+    </linearGradient>
+    <linearGradient id="towerGlassB" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#101a26"/>
+      <stop offset="50%" stop-color="#26374c"/>
+      <stop offset="100%" stop-color="#101a26"/>
+    </linearGradient>
+
+    <linearGradient id="navBlur" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.98"/>
+    </linearGradient>
+
+    <linearGradient id="headerBlur" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.98"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.85"/>
+    </linearGradient>
+
+    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="20" stdDeviation="25" flood-color="#013144" flood-opacity="0.15"/>
+    </filter>
+
+    <filter id="avatarShadow" x="-60%" y="-60%" width="220%" height="220%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#013144" flood-opacity="0.25"/>
+    </filter>
+
+    <clipPath id="phoneClip">
+      <rect x="15" y="10" width="400" height="912" rx="46"/>
+    </clipPath>
+
+    <clipPath id="card1Clip">
+      <rect x="0" y="0" width="160" height="96" rx="18"/>
+    </clipPath>
+    <clipPath id="card2Clip">
+      <rect x="0" y="0" width="160" height="96" rx="18"/>
+    </clipPath>
+
+    <style>
+      <![CDATA[
+        .fadeUp {
+          animation: fadeInUp 0.8s ease forwards;
+          opacity: 0;
+        }
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .dot-pulse {
+          animation: dotPulse 2s ease-in-out infinite;
+        }
+        @keyframes dotPulse {
+          0%, 100% { opacity: 0.6; }
+          50% { opacity: 1; }
+        }
+      ]]>
+    </style>
+  </defs>
+
+
+  <!-- Phone frame -->
+  <rect x="10" y="5" width="410" height="922" rx="50" fill="url(#phoneBorder)" filter="url(#softShadow)"/>
+
+  <!-- Side buttons -->
+  <rect x="6" y="145" width="5" height="42" rx="2.5" fill="url(#buttonMetal)"/>
+  <rect x="6" y="225" width="5" height="58" rx="2.5" fill="url(#buttonMetal)"/>
+  <rect x="6" y="295" width="5" height="58" rx="2.5" fill="url(#buttonMetal)"/>
+  <rect x="419" y="230" width="5" height="95" rx="2.5" fill="url(#buttonMetal)"/>
+
+  <!-- Screen inner background (Light inverted mode) -->
+  <rect x="15" y="10" width="400" height="912" rx="46" fill="#ffffff"/>
+  <rect x="15" y="10" width="400" height="912" rx="46" fill="url(#bgGlow)"/>
+
+  <g clip-path="url(#phoneClip)">
+
+    <!-- Dynamic Island -->
+    <rect x="163" y="22" width="104" height="30" rx="15" fill="#000000"/>
+    <circle cx="245" cy="37" r="6" fill="url(#cameraLens)"/>
+    <circle cx="243" cy="35" r="1.4" fill="#3a4f66" opacity="0.8"/>
+
+    <!-- Status bar -->
+    <text x="45" y="55" fill="#013144" font-family="Arial, sans-serif" font-size="14" font-weight="700">9:41</text>
+    <g transform="translate(350,42)" fill="none" stroke="#013144" stroke-width="1.6" stroke-linecap="round">
+      <path d="M0 6 Q7 -2 14 6"/>
+      <path d="M3 9 Q7 5 11 9"/>
+      <circle cx="7" cy="12" r="1.2" fill="#013144" stroke="none"/>
+    </g>
+    <g transform="translate(375,42)">
+      <rect x="0" y="2" width="20" height="10" rx="2.5" fill="none" stroke="#013144" stroke-width="1.5"/>
+      <rect x="21" y="5.5" width="2" height="3" rx="1" fill="#013144"/>
+      <rect x="2" y="4" width="14" height="6" rx="1" fill="#013144"/>
+    </g>
+
+    <!-- Header -->
+    <rect x="15" y="70" width="400" height="66" fill="url(#headerBlur)"/>
+    <path d="M50 96 L39 106 L50 116" fill="none" stroke="#013144" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="215" y="112" text-anchor="middle" fill="#013144" font-family="Arial, sans-serif" font-size="12" font-weight="900" letter-spacing="3">PROFESSIONAL PROFILE</text>
+    <g transform="translate(370,96)" fill="#013144" opacity="0.7">
+      <circle cx="10" cy="10" r="2"/>
+      <circle cx="10" cy="18" r="2"/>
+      <circle cx="10" cy="26" r="2"/>
+    </g>
+    <line x1="15" y1="136" x2="415" y2="136" stroke="#01314415" stroke-width="1"/>
+
+    <!-- Scrollable content -->
+    <g>
+      <!-- Hero Info -->
+      <g transform="translate(215,205)" text-anchor="middle">
+        <!-- Trust ring -->
+        <circle cx="0" cy="0" r="46" fill="none" stroke="url(#conicRing)" stroke-width="3.5"/>
+        <!-- Avatar -->
+        <circle cx="0" cy="0" r="40" fill="#013144" stroke="#ffffff" stroke-width="2"/>
+        <text x="0" y="9" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="24" font-weight="900">RS</text>
+        <!-- Verified badge -->
+        <circle cx="30" cy="30" r="13" fill="#00cc9c" stroke="#ffffff" stroke-width="2" filter="url(#avatarShadow)"/>
+        <path d="M24 30 L28 34 L36 25" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <text x="0" y="80" fill="#013144" font-family="Arial, sans-serif" font-size="24" font-weight="900" letter-spacing="-0.5">Rahul Sharma</text>
+        <text x="0" y="102" fill="#d97706" font-family="Arial, sans-serif" font-size="11" font-weight="900" letter-spacing="2">SENIOR COMMERCIAL SPECIALIST</text>
+      </g>
+
+      <!-- Quick Stats -->
+      <g transform="translate(0,340)">
+        <text x="107" y="0" text-anchor="middle" fill="#013144" font-family="Arial, sans-serif" font-size="19" font-weight="900">12</text>
+        <text x="107" y="16" text-anchor="middle" fill="#64748b" font-family="Arial, sans-serif" font-size="9" font-weight="700" letter-spacing="1">AWARDS</text>
+
+        <line x1="215" y1="-18" x2="215" y2="10" stroke="#0131441a" stroke-width="1"/>
+
+        <text x="215" y="0" text-anchor="middle" fill="#00cc9c" font-family="Arial, sans-serif" font-size="19" font-weight="900">8.4 Yrs</text>
+        <text x="215" y="16" text-anchor="middle" fill="#64748b" font-family="Arial, sans-serif" font-size="9" font-weight="700" letter-spacing="1">EXPERIENCE</text>
+
+        <line x1="323" y1="-18" x2="323" y2="10" stroke="#0131441a" stroke-width="1"/>
+
+        <text x="323" y="0" text-anchor="middle" fill="#013144" font-family="Arial, sans-serif" font-size="19" font-weight="900">4.9</text>
+        <text x="323" y="16" text-anchor="middle" fill="#64748b" font-family="Arial, sans-serif" font-size="9" font-weight="700" letter-spacing="1">TRUST SCORE</text>
+      </g>
+
+      <!-- Work Experience -->
+      <g transform="translate(0,400)">
+        <text x="40" y="0" fill="#64748b" font-family="Arial, sans-serif" font-size="11" font-weight="900" letter-spacing="2">WORK EXPERIENCE</text>
+
+        <line x1="40" y1="16" x2="40" y2="140" stroke="#01314415" stroke-width="1"/>
+
+        <!-- Timeline item 1 -->
+        <circle cx="40" cy="34" r="4.5" fill="#00cc9c"/>
+        <circle cx="40" cy="34" r="8" fill="#00cc9c" opacity="0.2"/>
+        <text x="58" y="38" fill="#013144" font-family="Arial, sans-serif" font-size="13" font-weight="700">Principal Consultant</text>
+        <text x="58" y="55" fill="#00cc9c" font-family="Arial, sans-serif" font-size="11" font-weight="700">PropNexus · 2020 - Present</text>
+
+        <!-- Timeline item 2 -->
+        <circle cx="40" cy="94" r="4" fill="#94a3b8"/>
+        <text x="58" y="98" fill="#334155" font-family="Arial, sans-serif" font-size="13" font-weight="700">Associate Director</text>
+        <text x="58" y="115" fill="#64748b" font-family="Arial, sans-serif" font-size="11">JLL India · 2016 - 2020</text>
+      </g>
+
+      <!-- Active Listings header -->
+      <g transform="translate(0,565)">
+        <text x="40" y="0" fill="#64748b" font-family="Arial, sans-serif" font-size="11" font-weight="900" letter-spacing="2">ACTIVE LISTINGS (24)</text>
+        <text x="390" y="0" text-anchor="end" fill="#d97706" font-family="Arial, sans-serif" font-size="11" font-weight="700">See all →</text>
+      </g>
+
+      <!-- Listing cards -->
+      <g transform="translate(40,585)">
+        <!-- Card 1 -->
+        <g>
+          <g clip-path="url(#card1Clip)">
+            <rect x="0" y="0" width="160" height="96" fill="url(#skySunsetA)"/>
+            <g fill="#0e1520" opacity="0.55">
+              <rect x="-5" y="55" width="14" height="30"/>
+              <rect x="12" y="48" width="10" height="37"/>
+              <rect x="128" y="50" width="12" height="35"/>
+              <rect x="145" y="58" width="16" height="28"/>
+            </g>
+            <rect x="55" y="14" width="50" height="82" fill="url(#towerGlassA)"/>
+            <g fill="#f6d98a" opacity="0.55">
+              <rect x="60" y="20" width="5" height="6"/><rect x="69" y="20" width="5" height="6"/><rect x="78" y="20" width="5" height="6"/><rect x="87" y="20" width="5" height="6"/><rect x="96" y="20" width="5" height="6"/>
+              <rect x="60" y="32" width="5" height="6"/><rect x="69" y="32" width="5" height="6"/><rect x="87" y="32" width="5" height="6"/><rect x="96" y="32" width="5" height="6"/>
+              <rect x="60" y="44" width="5" height="6"/><rect x="78" y="44" width="5" height="6"/><rect x="87" y="44" width="5" height="6"/>
+            </g>
+            <rect x="0" y="60" width="160" height="36" fill="#000000" opacity="0.2"/>
+          </g>
+          <rect x="0" y="0" width="160" height="96" rx="18" fill="none" stroke="#01314415" stroke-width="1"/>
+          <rect x="8" y="8" width="58" height="15" rx="4" fill="#013144d0"/>
+          <text x="37" y="18.5" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="7" font-weight="900">PREMIUM</text>
+          <text x="10" y="115" fill="#013144" font-family="Arial, sans-serif" font-size="12" font-weight="700">Horizon Tower B</text>
+          <text x="10" y="133" fill="#00cc9c" font-family="Arial, sans-serif" font-size="11" font-weight="900">AED 4,500,000</text>
+        </g>
+
+        <!-- Card 2 -->
+        <g transform="translate(172,0)">
+          <g clip-path="url(#card2Clip)">
+            <rect x="0" y="0" width="160" height="96" fill="url(#skyDuskB)"/>
+            <g fill="#101a26" opacity="0.5">
+              <rect x="-4" y="60" width="16" height="26"/>
+              <rect x="140" y="52" width="14" height="34"/>
+            </g>
+            <rect x="18" y="42" width="124" height="54" fill="url(#towerGlassB)"/>
+            <g fill="#bcd6ea" opacity="0.4">
+              <rect x="24" y="48" width="12" height="9"/><rect x="40" y="48" width="12" height="9"/><rect x="56" y="48" width="12" height="9"/><rect x="72" y="48" width="12" height="9"/>
+              <rect x="24" y="61" width="12" height="9"/><rect x="40" y="61" width="12" height="9"/><rect x="56" y="61" width="12" height="9"/><rect x="72" y="61" width="12" height="9"/>
+            </g>
+            <rect x="0" y="60" width="160" height="36" fill="#000000" opacity="0.2"/>
+          </g>
+          <rect x="0" y="0" width="160" height="96" rx="18" fill="none" stroke="#01314415" stroke-width="1"/>
+          <rect x="8" y="8" width="58" height="15" rx="4" fill="#013144d0"/>
+          <text x="37" y="18.5" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="7" font-weight="900">VERIFIED</text>
+          <text x="10" y="115" fill="#013144" font-family="Arial, sans-serif" font-size="12" font-weight="700">Platina SEZ Office</text>
+          <text x="10" y="133" fill="#00cc9c" font-family="Arial, sans-serif" font-size="11" font-weight="900">AED 1,200,000</text>
+        </g>
+      </g>
+
+      <!-- Achievements -->
+      <g transform="translate(40,745)">
+        <!-- Achievement 1 -->
+        <rect x="0" y="0" width="167" height="90" rx="16" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+        <g transform="translate(16,16)" fill="none" stroke="#d97706" stroke-width="1.8" stroke-linejoin="round">
+          <path d="M9 0 L17 3 L17 9 C17 14 13.5 17.5 9 19 C4.5 17.5 1 14 1 9 L1 3 Z"/>
+          <circle cx="9" cy="9" r="3.5"/>
+        </g>
+        <text x="16" y="55" fill="#013144" font-family="Arial, sans-serif" font-size="10.5" font-weight="700" letter-spacing="0.5">
+          <tspan x="16" dy="0">BROKER OF THE</tspan>
+          <tspan x="16" dy="14">YEAR 2023</tspan>
+        </text>
+
+        <!-- Achievement 2 -->
+        <g transform="translate(183,0)">
+          <rect x="0" y="0" width="167" height="90" rx="16" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+          <g transform="translate(16,16)" fill="none" stroke="#00cc9c" stroke-width="1.8">
+            <circle cx="9" cy="9" r="9"/>
+            <path d="M5 9 L8 12.5 L13.5 5.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+          <text x="16" y="55" fill="#013144" font-family="Arial, sans-serif" font-size="10.5" font-weight="700" letter-spacing="0.5">
+            <tspan x="16" dy="0">RERA CERTIFIED</tspan>
+            <tspan x="16" dy="14">SPECIALIST</tspan>
+          </text>
+        </g>
+      </g>
+    </g>
+
+    <!-- Bottom Nav -->
+    <rect x="15" y="832" width="400" height="90" fill="url(#navBlur)"/>
+    <line x1="15" y1="832" x2="415" y2="832" stroke="#01314415" stroke-width="1"/>
+
+    <g transform="translate(94,858)" opacity="0.4" fill="none" stroke="#013144" stroke-width="2">
+      <path d="M0 12 L12 2 L24 12 L24 24 L15 24 L15 15 L9 15 L9 24 L0 24 Z" stroke-linejoin="round"/>
+    </g>
+
+    <g transform="translate(174,858)" opacity="0.4" fill="none" stroke="#013144" stroke-width="2">
+      <circle cx="10" cy="10" r="8"/>
+      <line x1="16" y1="16" x2="23" y2="23" stroke-linecap="round"/>
+    </g>
+
+    <g transform="translate(254,858)" fill="none" stroke="#00cc9c" stroke-width="2">
+      <circle cx="12" cy="8" r="5"/>
+      <path d="M2 26 C2 18 6 15 12 15 C18 15 22 18 22 26" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle class="dot-pulse" cx="12" cy="33" r="2" fill="#00cc9c" stroke="none"/>
+    </g>
+
+    <g transform="translate(334,858)" opacity="0.4" fill="none" stroke="#013144" stroke-width="2">
+      <circle cx="12" cy="12" r="3.4"/>
+      <path d="M12 1 L12 5 M12 19 L12 23 M1 12 L5 12 M19 12 L23 12 M4.5 4.5 L7.2 7.2 M16.8 16.8 L19.5 19.5 M19.5 4.5 L16.8 7.2 M7.2 16.8 L4.5 19.5" stroke-linecap="round"/>
+    </g>
+
+    <!-- Glass sheen overlay -->
+    <rect x="15" y="10" width="400" height="912" rx="46" fill="url(#glassSheen)"/>
+
+  </g>
+
+  <!-- Outer frame highlight -->
+  <rect x="15" y="10" width="400" height="912" rx="46" fill="none" stroke="#0131441a" stroke-width="1.2"/>
+  <rect x="10" y="5" width="410" height="922" rx="50" fill="none" stroke="#0131440f" stroke-width="0.8"/>
+</svg>
