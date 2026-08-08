@@ -150,13 +150,54 @@ async function main() {
   }
   console.log(`Seeded ${panels.length} Story Panels.`);
 
-  // 4. Seed 5 Workflow Items with Valid Image Paths
+
+  // 4. Seed Workflow Items
   const workflows = [
-    { title: "Discovery", heading1: "Verified Brokers,", heading2: "Real Connections", description: "Find the right inventory and opportunities without the noise.", imageUrl: "/images/what-we-offer/discovery.png", isActive: true, sortOrder: 0 },
-    { title: "Closure", heading1: "Structured Listings,", heading2: "Smarter Discovery", description: "Smarter workflows lead to faster closures and stronger relationships.", imageUrl: "/images/what-we-offer/closure.png", isActive: true, sortOrder: 1 },
-    { title: "Connection", heading1: "Collaborate Faster,", heading2: "Close Better", description: "Every meaningful deal starts with a trusted connection.", imageUrl: "/images/what-we-offer/connect.png", isActive: true, sortOrder: 2 },
-    { title: "Collaboration", heading1: "From Connection", heading2: "to Closure", description: "Work together, share inventory, and move deals forward with confidence.", imageUrl: "/images/what-we-offer/collaboration.png", isActive: true, sortOrder: 3 },
-    { title: "Verification", heading1: "Zero Spam,", heading2: "100% Trust", description: "Every agent profile is checked and certified by the regional board.", imageUrl: "/images/what-we-offer/discovery.png", isActive: true, sortOrder: 4 }
+    {
+      title: "Get Verified",
+      heading1: "Step 1: Verification",
+      heading2: "Verified Network",
+      description: "Get verified instantly and start listing in seconds. Every profile is checked and certified by the regional board—zero spam, 100% trust.",
+      imageUrl: "/images/about-us/story-1.png",
+      isActive: true,
+      sortOrder: 0
+    },
+    {
+      title: "Build Your Profile",
+      heading1: "Step 2: Profile",
+      heading2: "Digital Track Record",
+      description: "Turn your track record into a credible, verifiable real estate profile—not just a name and a phone number.",
+      imageUrl: "/images/about-us/story-2.jpeg",
+      isActive: true,
+      sortOrder: 1
+    },
+    {
+      title: "Search Inventory",
+      heading1: "Step 3: Discovery",
+      heading2: "Property Matching",
+      description: "Explore thousands of verified listings with seamless precision, and find the right opportunities without the noise.",
+      imageUrl: "/images/about-us/story-3.png",
+      isActive: true,
+      sortOrder: 2
+    },
+    {
+      title: "Smart Chat & Deals",
+      heading1: "Step 4: Collaboration",
+      heading2: "Direct Co-Broking",
+      description: "Connect directly with verified brokers, negotiate terms in private, and keep deal history organized in one place.",
+      imageUrl: "/images/about-us/story-4.png",
+      isActive: true,
+      sortOrder: 3
+    },
+    {
+      title: "Deal Closure",
+      heading1: "Step 5: Settlement",
+      heading2: "Commission Guarantee",
+      description: "Track site visits, manage offers, and lock in commissions with standardized digital agreement templates.",
+      imageUrl: "/images/about-us/aboutus.jpg",
+      isActive: true,
+      sortOrder: 4
+    }
   ];
 
   await prisma.workflowItem.createMany({ data: workflows });
@@ -195,6 +236,14 @@ async function main() {
 
   await prisma.sEOPage.createMany({ data: seoPages });
   console.log(`Seeded ${seoPages.length} SEO Pages.`);
+
+  // 7. Seed App URLs
+  const appUrls = [
+    { urlKey: "appStore", value: "https://apps.apple.com/app/brokarta" },
+    { urlKey: "playStore", value: "https://play.google.com/store/apps/details?id=com.brokarta" }
+  ];
+  await prisma.appUrl.createMany({ data: appUrls });
+  console.log(`Seeded ${appUrls.length} App URLs.`);
 
   console.log("Database seed completed successfully!");
 }

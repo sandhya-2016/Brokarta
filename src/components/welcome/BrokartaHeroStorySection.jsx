@@ -216,7 +216,7 @@ export default function BrokartaHeroStorySection() {
     {
       title: t("home", "story.feature6.title", "In-App Chat & Call"),
       description: t("home", "story.feature6.desc", "Connect with buyers and sellers securely without leaving the app."),
-      img: "/images/Home/Call.png",
+      img: "/images/Home/call.png",
       bgGradient: "bg-gradient-to-br from-[#4c1d3c]/95 via-[#2e0f23]/95 to-[#1c0714]",
       accentBorder: "border-pink-500/40",
       glow: "bg-pink-500/25",
