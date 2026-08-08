@@ -61,12 +61,6 @@ export const DEFAULT_TEXTS = {
 
       // Community Testimonials Section
       { key: "testimonial.title", label: "Testimonials Main Title", default: "Our Growing Community", type: "input", section: "Testimonials & Community" },
-      { key: "testimonials.james.name", label: "Testimonial 1 Author", default: "James Thompson", type: "input", section: "Testimonials & Community" },
-      { key: "testimonials.james.text", label: "Testimonial 1 Quote", default: "Brokarta has completely transformed how our team manages B2B real estate leads and co-broking deals.", type: "textarea", section: "Testimonials & Community" },
-      { key: "testimonials.sarah.name", label: "Testimonial 2 Author", default: "Sarah Jenkins", type: "input", section: "Testimonials & Community" },
-      { key: "testimonials.sarah.text", label: "Testimonial 2 Quote", default: "The interface is so intuitive, it changed how our team works daily!", type: "textarea", section: "Testimonials & Community" },
-      { key: "testimonials.marcus.name", label: "Testimonial 3 Author", default: "Marcus Wright", type: "input", section: "Testimonials & Community" },
-      { key: "testimonials.marcus.text", label: "Testimonial 3 Quote", default: "Finally an app that understands user experience. 5 stars!", type: "textarea", section: "Testimonials & Community" },
     ]
   },
   "about-us": {
@@ -99,19 +93,6 @@ export const DEFAULT_TEXTS = {
       { key: "orbit.point3.desc", label: "Pillar 3 Description", default: "Less chasing, more closing", type: "input", section: "Future Orbit Pillars" },
       { key: "orbit.point4.title", label: "Pillar 4 Title", default: "Reduce costs", type: "input", section: "Future Orbit Pillars" },
       { key: "orbit.point4.desc", label: "Pillar 4 Description", default: "One platform, not a patchwork of scattered tools", type: "input", section: "Future Orbit Pillars" },
-
-      { key: "story.panel0.title", label: "Story Panel 0 Title", default: "Every Broker Has a Story", type: "input", section: "Broker Story Panels" },
-      { key: "story.panel0.description", label: "Story Panel 0 Description", default: "Real estate brokerage runs on effort, relationships, and persistence- yet brokers keep losing time to problems the tools around them were never built to solve:", type: "textarea", section: "Broker Story Panels" },
-      { key: "story.panel0.quote", label: "Story Panel 0 Quote", default: "Seamless collaboration, not stress.", type: "input", section: "Broker Story Panels" },
-      { key: "story.panel0.quoteBadge", label: "Story Panel 0 Quote Badge", default: "Verified Networks", type: "input", section: "Broker Story Panels" },
-      { key: "story.panel1.title", label: "Story Panel 1 Title", default: "We Saw the Gap", type: "input", section: "Broker Story Panels" },
-      { key: "story.panel1.description", label: "Story Panel 1 Description", default: "Across the industry, the pattern repeats: brokers spend more time managing disorganization than closing deals.", type: "textarea", section: "Broker Story Panels" },
-      { key: "story.panel1.quote", label: "Story Panel 1 Quote", default: "Smarter data, real empowerment.", type: "input", section: "Broker Story Panels" },
-      { key: "story.panel1.quoteBadge", label: "Story Panel 1 Quote Badge", default: "Tech-First Network", type: "input", section: "Broker Story Panels" },
-      { key: "story.panel2.title", label: "Story Panel 2 Title", default: "Why Brokarta Was Built", type: "input", section: "Broker Story Panels" },
-      { key: "story.panel2.description", label: "Story Panel 2 Description", default: "Brokarta exists to replace confusion with clarity and fragmentation with structure. When brokers can collaborate with confidence, there's no ceiling on what they can close.", type: "textarea", section: "Broker Story Panels" },
-      { key: "story.panel2.quote", label: "Story Panel 2 Quote", default: "Handshakes that become closed deals.", type: "input", section: "Broker Story Panels" },
-      { key: "story.panel2.quoteBadge", label: "Story Panel 2 Quote Badge", default: "Deal Growth", type: "input", section: "Broker Story Panels" },
     ]
   },
   "what-we-offer": {

@@ -23,7 +23,7 @@ import {
   ShieldCheck,
   History
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 
 export default function AdminLayout({ children }) {
   const { data: session, status } = useSession();
@@ -283,7 +283,16 @@ export default function AdminLayout({ children }) {
 
         {/* Content Area */}
         <main className="flex-1 p-6 lg:p-10 overflow-y-auto">
-          {children}
+          <Suspense
+            fallback={
+              <div className="flex flex-col items-center justify-center min-h-[400px] w-full gap-3 py-16">
+                <div className="w-10 h-10 rounded-full border-4 border-[#013144] border-t-transparent animate-spin"></div>
+                <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Loading admin view...</span>
+              </div>
+            }
+          >
+            {children}
+          </Suspense>
         </main>
       </div>
 

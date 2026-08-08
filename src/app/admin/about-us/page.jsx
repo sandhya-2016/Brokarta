@@ -363,6 +363,7 @@ export default function AdminAboutUsPage() {
                     <img
                       src={p.imageUrl || "/images/1aa.png"}
                       alt={p.title}
+                      loading="lazy"
                       className="w-full h-full object-cover"
                       onError={(e) => { e.currentTarget.src = "/images/1aa.png"; }}
                     />
@@ -474,6 +475,7 @@ export default function AdminAboutUsPage() {
                     <img
                       src={imagePreview}
                       alt="Preview"
+                      loading="lazy"
                       className="w-full h-full object-cover"
                       onError={(e) => { e.currentTarget.src = "/images/1aa.png"; }}
                     />

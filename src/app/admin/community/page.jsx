@@ -437,6 +437,7 @@ export default function AdminCommunityPage() {
                             <img
                               src={item.imageUrl || "/images/logo1.jpeg"}
                               alt={item.name}
+                              loading="lazy"
                               className="w-full h-full object-cover"
                               onError={(e) => { e.currentTarget.src = "/images/logo1.jpeg"; }}
                             />
@@ -592,6 +593,7 @@ export default function AdminCommunityPage() {
                     <img
                       src={imagePreview}
                       alt="Preview"
+                      loading="lazy"
                       className="w-full h-full object-cover"
                       onError={(e) => { e.currentTarget.src = "/images/logo1.jpeg"; }}
                     />

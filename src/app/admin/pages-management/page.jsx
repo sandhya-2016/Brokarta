@@ -177,7 +177,7 @@ export default function AdminPagesManagementPage() {
             <BookOpen className="w-7 h-7 text-white" />
             Page Text Management
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 font-medium max-w-2xl leading-relaxed">
+          <p className="text-xs text-white/80 max-w-xl font-medium leading-relaxed">
             Directly update headings, hero titles, descriptions, and CTA labels across marketing pages without code redeployments.
           </p>
         </div>

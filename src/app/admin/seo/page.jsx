@@ -279,6 +279,7 @@ export default function AdminSeoPage() {
                     <img
                       src={ogImagePreview}
                       alt="OG Preview"
+                      loading="lazy"
                       className="w-full h-full object-cover"
                       onError={(e) => { e.currentTarget.style.display = 'none'; }}
                     />
