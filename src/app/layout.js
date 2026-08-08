@@ -28,16 +28,30 @@ const roboto = Roboto({
 });
 
 export const metadata = {
+  metadataBase: new URL("https://brokarta.com"),
   title: {
     default: "Brokarta | Community Network",
     template: "%s | Brokarta",
   },
   description: "The digital network for the modern real estate broker. Connect with peers, collaborate on deals, and grow your network.",
+  icons: {
+    icon: "/images/global/logo.png",
+    shortcut: "/images/global/logo.png",
+    apple: "/images/global/logo.png",
+  },
   openGraph: {
     title: "Brokarta | Community Network",
     description: "The digital network for the modern real estate broker.",
     url: "https://brokarta.com",
     siteName: "Brokarta",
+    images: [
+      {
+        url: "/images/global/logo.png",
+        width: 800,
+        height: 600,
+        alt: "Brokarta Logo",
+      },
+    ],
     locale: "en_US",
     type: "website",
   },
